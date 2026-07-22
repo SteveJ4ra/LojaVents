@@ -1,0 +1,18 @@
+<div class="portal-heading"><span class="eyebrow">Gestión del local</span><h1>{{ editing ? 'Editar local' : 'Registrar local' }}</h1><p>Los datos se almacenan localmente para demostrar la interfaz.</p></div>
+<form class="panel" [formGroup]="form" (ngSubmit)="save()">
+  <div class="form-grid">
+    <label class="wide"><span>Nombre del local</span><input formControlName="name"></label>
+    <label class="wide"><span>Descripción corta</span><input formControlName="shortDescription"></label>
+    <label class="wide"><span>Descripción completa</span><textarea rows="5" formControlName="description"></textarea></label>
+    <label><span>Barrio o sector</span><input formControlName="neighborhood"></label>
+    <label><span>Dirección</span><input formControlName="address"></label>
+    <label><span>Precio por hora</span><input type="number" min="1" formControlName="pricePerHour"></label>
+    <label><span>Capacidad máxima</span><input type="number" min="1" formControlName="capacity"></label>
+    <label class="wide"><span>Tipos de evento (separados por comas)</span><input formControlName="eventTypes"></label>
+    <label class="wide"><span>Amenidades (separadas por comas)</span><input formControlName="amenities"></label>
+    <label class="wide"><span>Reglas (una por línea)</span><textarea rows="5" formControlName="rules"></textarea></label>
+    <label class="wide"><span>Política de cancelación</span><textarea rows="3" formControlName="cancellationPolicy"></textarea></label>
+    @if (!editing) { <label class="wide"><span>Imagen de demostración</span><select formControlName="image"><option value="/images/venue-new.svg">Espacio nuevo</option><option value="/images/venue-1.svg">Jardín</option><option value="/images/venue-2.svg">Salón</option></select></label> }
+  </div>
+  <div class="buttons"><button class="btn btn-secondary" type="button" (click)="cancel()">Cancelar</button><button class="btn btn-primary" type="submit">{{ editing ? 'Guardar cambios' : 'Registrar local' }}</button></div>
+</form>

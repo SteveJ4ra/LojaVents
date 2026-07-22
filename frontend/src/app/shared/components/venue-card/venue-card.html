@@ -1,0 +1,27 @@
+<article class="venue-card">
+  <a class="image-wrap" [routerLink]="['/locales', venue().id]">
+    <img [src]="venue().images[0]" [alt]="venue().name">
+  </a>
+
+  <button
+    type="button"
+    class="favorite"
+    [class.active]="favorite()"
+    [attr.aria-label]="favorite() ? 'Quitar de favoritos' : 'Agregar a favoritos'"
+    (click)="favoriteChange.emit(venue().id)">
+    {{ favorite() ? '♥' : '♡' }}
+  </button>
+
+  <div class="content">
+    <div class="topline">
+      <span>{{ venue().neighborhood }}, Loja</span>
+      <span>★ {{ venue().rating }}</span>
+    </div>
+    <a class="title" [routerLink]="['/locales', venue().id]">{{ venue().name }}</a>
+    <p>{{ venue().shortDescription }}</p>
+    <div class="meta">
+      <span>Hasta {{ venue().capacity }} personas</span>
+      <strong>{{ venue().pricePerHour | currency:'USD':'symbol':'1.0-0' }}/hora</strong>
+    </div>
+  </div>
+</article>

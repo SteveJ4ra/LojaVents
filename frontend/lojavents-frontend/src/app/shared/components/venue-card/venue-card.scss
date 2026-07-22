@@ -1,0 +1,25 @@
+.venue-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.venue-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+.image-wrap { display: block; aspect-ratio: 4 / 3; background: #e9e6df; }
+img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.favorite {
+  position: absolute; top: 14px; right: 14px; width: 42px; height: 42px;
+  border: 0; border-radius: 50%; background: rgba(255,255,255,.92);
+  font-size: 1.55rem; cursor: pointer; box-shadow: var(--shadow-sm);
+}
+.favorite.active { color: var(--danger); }
+.content { padding: 18px; }
+.topline, .meta { display: flex; justify-content: space-between; gap: 12px; align-items: center; }
+.topline { color: var(--text-muted); font-size: .86rem; }
+.title { display: block; color: var(--text); font-weight: 750; font-size: 1.08rem; margin: 8px 0; text-decoration: none; }
+p { color: var(--text-muted); min-height: 44px; margin: 0 0 16px; }
+.meta { font-size: .9rem; }
+.meta strong { white-space: nowrap; }

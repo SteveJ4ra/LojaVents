@@ -1,0 +1,17 @@
+<div class="portal-heading"><span class="eyebrow">Gestión del local</span><h1>{{ editing ? 'Editar local' : 'Registrar local' }}</h1><p>Los datos se enviarán a revisión antes de publicarse.</p></div>
+@if (loading()) { <section class="panel"><p>Cargando información del local...</p></section> } @else {
+  <form class="panel" [formGroup]="form" (ngSubmit)="save()"><small class="required-legend">Campos obligatorios</small><div class="form-grid">
+    <label class="wide" for="venue-name"><span>Nombre del local *</span><input id="venue-name" formControlName="name" aria-required="true" autocomplete="organization"></label>
+    <label class="wide" for="venue-short-description"><span>Descripcion corta *</span><input id="venue-short-description" formControlName="shortDescription" aria-required="true"></label>
+    <label class="wide" for="venue-description"><span>Descripción completa *</span><textarea id="venue-description" rows="5" formControlName="description" aria-required="true"></textarea></label>
+    <label for="venue-neighborhood"><span>Barrio o sector *</span><input id="venue-neighborhood" formControlName="neighborhood" aria-required="true" autocomplete="address-level2"></label>
+    <label for="venue-address"><span>Dirección *</span><input id="venue-address" formControlName="address" aria-required="true" autocomplete="street-address"></label>
+    <label for="venue-price"><span>Precio por hora *</span><input id="venue-price" type="number" min="1" formControlName="pricePerHour" aria-required="true"></label>
+    <label for="venue-capacity"><span>Capacidad máxima *</span><input id="venue-capacity" type="number" min="1" formControlName="capacity" aria-required="true"></label>
+    <label class="wide" for="venue-event-types"><span>Tipos de evento *</span><select id="venue-event-types" formControlName="eventTypes" multiple aria-required="true">@for (type of eventTypeOptions; track type) { <option [value]="type">{{ type }}</option> }</select><small>Usa Ctrl o Cmd para elegir varias opciones.</small></label>
+    <label class="wide" for="venue-amenities"><span>Amenidades *</span><select id="venue-amenities" formControlName="amenities" multiple aria-required="true">@for (amenity of amenityOptions; track amenity) { <option [value]="amenity">{{ amenity }}</option> }</select><small>Usa Ctrl o Cmd para elegir varias opciones.</small></label>
+    <label class="wide" for="venue-rules"><span>Reglas *</span><textarea id="venue-rules" rows="5" formControlName="rules" aria-required="true"></textarea></label>
+    <label class="wide" for="venue-policy"><span>Política de cancelación *</span><textarea id="venue-policy" rows="3" formControlName="cancellationPolicy" aria-required="true"></textarea></label>
+    <label class="wide" for="venue-images"><span>Fotografías del local *</span><input id="venue-images" type="file" accept="image/png,image/jpeg,image/webp" multiple (change)="imagesChanged($event)"><small>PNG, JPG o WEBP de hasta 8 MB por imagen.</small></label>
+  </div><div class="buttons"><button class="btn btn-secondary" type="button" (click)="cancel()">Cancelar</button><button class="btn btn-primary" type="submit" [disabled]="saving()">{{ saving() ? 'Enviando a revisión...' : (editing ? 'Actualizar y enviar a revisión' : 'Enviar a revisión') }}</button></div></form>
+}

@@ -1,0 +1,15 @@
+<div class="portal-heading"><span class="eyebrow">Propietarios</span><h1>Solicitudes de verificación</h1><p>Aprueba o rechaza el rol adicional de propietario para cuentas cliente.</p></div>
+@if (loading()) {
+  <p>Cargando solicitudes...</p>
+} @else if (requests().length) {
+  <div class="request-list">
+    @for (request of requests(); track request.id) {
+      <article>
+        <div><h2>{{ request.userFullName }}</h2><p>{{ request.userEmail }}</p><p>Identificacion: {{ request.identification }}</p><p>Documento: {{ request.documentReference }}</p><blockquote>{{ request.notes }}</blockquote><small>Enviada: {{ request.submittedAt }}</small></div>
+        <div class="actions">@if (request.hasDocument) { <button class="btn btn-secondary" type="button" (click)="openDocument(request)">Abrir documento</button> }<button class="btn btn-primary" type="button" [disabled]="reviewingId() === request.id" (click)="approve(request)">Aprobar</button><button class="btn btn-danger" type="button" [disabled]="reviewingId() === request.id" (click)="reject(request)">Rechazar</button></div>
+      </article>
+    }
+  </div>
+} @else {
+  <app-empty-state icon="OK" title="No hay solicitudes pendientes" message="Las nuevas solicitudes aparecerán aquí para revisión." />
+}

@@ -1,0 +1,21 @@
+<div class="portal-heading"><span class="eyebrow">Cuentas</span><h1>Gestión de usuarios</h1><p>Consulta los usuarios registrados y activa o suspende sus cuentas.</p></div>
+<section class="panel">
+  @if (loading()) {
+    <p>Cargando usuarios…</p>
+  } @else {
+    <div class="table-wrap"><table><thead><tr><th>Usuario</th><th>Contacto</th><th>Roles</th><th>Verificación</th><th>Estado</th><th>Acción</th></tr></thead><tbody>
+      @for (user of users(); track user.id) {
+        <tr>
+          <td><strong>{{ user.fullName }}</strong><small>Registrado: {{ user.createdAt }}</small></td>
+          <td>{{ user.email }}<small>{{ user.phone }}</small></td>
+          <td><div class="badges">@for (role of user.roles; track role) { <app-status-badge [status]="role" /> }</div></td>
+          <td><app-status-badge [status]="user.ownerVerificationStatus" /></td>
+          <td><app-status-badge [status]="user.status" /></td>
+          <td><button class="btn btn-secondary" type="button" [disabled]="user.roles.includes('ADMINISTRADOR') || changingId() === user.id" (click)="changeStatus(user)">{{ user.status === 'ACTIVO' ? 'Suspender' : 'Activar' }}</button></td>
+        </tr>
+      } @empty {
+        <tr><td colspan="6">No existen usuarios registrados.</td></tr>
+      }
+    </tbody></table></div>
+  }
+</section>

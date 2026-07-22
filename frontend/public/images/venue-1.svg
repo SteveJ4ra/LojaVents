@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 600" role="img" aria-labelledby="t d">
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#6ea17c"/><stop offset="1" stop-color="#d8b27a"/></linearGradient></defs>
+<rect width="960" height="600" fill="url(#g)"/>
+
+          <circle cx="170" cy="280" r="120" fill="#ffffff" fill-opacity=".16"/>
+          <path d="M0 390 Q160 300 310 375 T640 360 T960 380 V600 H0Z" fill="#173e2a" fill-opacity=".82"/>
+          <path d="M120 410 V245 M105 275 Q120 235 138 275 M98 300 Q120 258 145 300" stroke="#d9f4df" stroke-width="13" stroke-linecap="round"/>
+          <path d="M760 435 V245 M740 285 Q760 235 782 285 M730 315 Q760 265 790 315" stroke="#e5f6e8" stroke-width="15" stroke-linecap="round"/>
+          <rect x="310" y="280" width="340" height="190" rx="16" fill="#fff" fill-opacity=".9"/>
+          <path d="M280 300 L480 160 L680 300Z" fill="#f3e2c1"/>
+          <rect x="440" y="345" width="80" height="125" rx="5" fill="#9d704c"/>
+        
+<rect x="38" y="36" width="430" height="84" rx="18" fill="#fff" fill-opacity=".88"/>
+<text id="t" x="66" y="75" font-family="Arial,sans-serif" font-size="27" font-weight="700" fill="#1b2b23">Jardín Mirador</text>
+<text id="d" x="66" y="101" font-family="Arial,sans-serif" font-size="16" fill="#52625a">El Valle · Loja</text>
+</svg>

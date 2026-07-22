@@ -1,0 +1,49 @@
+<section class="page-header">
+  <div class="container">
+    <span class="eyebrow">Catálogo</span>
+    <h1>Encuentra un espacio en Loja</h1>
+    <p>Filtra la oferta disponible según las necesidades de tu evento.</p>
+  </div>
+</section>
+
+<div class="container search-layout">
+  <aside>
+    <form [formGroup]="form">
+      <label><span>Buscar</span><input type="search" placeholder="Nombre o sector" formControlName="text"></label>
+      <label>
+        <span>Tipo de evento</span>
+        <select formControlName="eventType">
+          <option value="">Todos</option>
+          @for (type of venueService.eventTypes(); track type) {
+            <option [value]="type">{{ type }}</option>
+          }
+        </select>
+      </label>
+      <label><span>Fecha</span><input type="date" formControlName="date"></label>
+      <label><span>Asistentes</span><input type="number" min="1" formControlName="attendees"></label>
+      <label>
+        <span>Precio máximo por hora: ${{ form.controls.maxPrice.value }}</span>
+        <input type="range" min="20" max="150" step="5" formControlName="maxPrice">
+      </label>
+      <button type="button" class="btn btn-secondary full" (click)="reset()">Limpiar filtros</button>
+    </form>
+  </aside>
+
+  <main>
+    <div class="results-heading">
+      <h2>{{ results().length }} espacios encontrados</h2>
+    </div>
+    @if (results().length) {
+      <div class="card-grid">
+        @for (venue of results(); track venue.id) {
+          <app-venue-card
+            [venue]="venue"
+            [favorite]="favorites.has(venue.id)"
+            (favoriteChange)="toggleFavorite($event)" />
+        }
+      </div>
+    } @else {
+      <app-empty-state icon="⌕" title="No encontramos locales" message="Cambia la fecha o amplía los filtros de búsqueda." />
+    }
+  </main>
+</div>

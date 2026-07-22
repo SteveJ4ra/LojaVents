@@ -1,0 +1,20 @@
+<section class="auth-page">
+  <div class="auth-card">
+    <div class="auth-intro">
+      <span class="eyebrow">Nueva cuenta</span>
+      <h1>Regístrate como cliente</h1>
+      <p>Después podrás solicitar también el rol de propietario.</p>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <label><span>Nombres completos</span><input formControlName="fullName"></label>
+      <label><span>Correo electrónico</span><input type="email" formControlName="email"></label>
+      <label><span>Teléfono</span><input inputmode="numeric" formControlName="phone"></label>
+      <label><span>Contraseña</span><input type="password" formControlName="password"></label>
+      <label class="checkbox"><input type="checkbox" formControlName="accept"><span>Acepto los términos de uso de esta demostración académica.</span></label>
+      <button class="btn btn-primary full" type="submit">Crear cuenta</button>
+    </form>
+
+    <p class="switch">¿Ya tienes cuenta? <a routerLink="/login">Inicia sesión</a></p>
+  </div>
+</section>

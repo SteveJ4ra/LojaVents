@@ -1,0 +1,26 @@
+<div class="portal-heading"><span class="eyebrow">Calendario</span><h1>Disponibilidad</h1><p>Marca fechas y rangos horarios que no podrán reservarse.</p></div>
+<div class="availability-layout">
+  <section class="panel">
+    <h2>Seleccionar local</h2>
+    <select [value]="selectedId()" (change)="select($event)">
+      @for (venue of ownerVenues(); track venue.id) { <option [value]="venue.id">{{ venue.name }}</option> }
+    </select>
+    <h2>Nuevo bloqueo</h2>
+    <form [formGroup]="form" (ngSubmit)="add()">
+      <label><span>Fecha</span><input type="date" formControlName="date"></label>
+      <div class="times"><label><span>Desde</span><input type="time" formControlName="startTime"></label><label><span>Hasta</span><input type="time" formControlName="endTime"></label></div>
+      <label><span>Motivo</span><input formControlName="reason"></label>
+      <button class="btn btn-primary full" type="submit">Bloquear horario</button>
+    </form>
+  </section>
+  <section class="panel">
+    <h2>Bloqueos de {{ selected()?.name ?? 'local' }}</h2>
+    @if (selected()?.blockedSlots?.length) {
+      <div class="blocks">
+        @for (block of selected()!.blockedSlots; track block.id) {
+          <article><div><strong>{{ block.date }}</strong><span>{{ block.startTime }} – {{ block.endTime }}</span><p>{{ block.reason }}</p></div><button type="button" (click)="remove(block.id)">Eliminar</button></article>
+        }
+      </div>
+    } @else { <p class="empty">Este local no tiene fechas bloqueadas.</p> }
+  </section>
+</div>

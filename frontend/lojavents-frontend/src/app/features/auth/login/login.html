@@ -1,0 +1,33 @@
+<section class="auth-page">
+  <div class="auth-card">
+    <div class="auth-intro">
+      <span class="eyebrow">Bienvenido</span>
+      <h1>Inicia sesión</h1>
+      <p>Accede a tus reservas, favoritos y paneles según tu rol.</p>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <label>
+        <span>Correo electrónico</span>
+        <input type="email" formControlName="email">
+        @if (form.controls.email.touched && form.controls.email.invalid) { <small>Ingresa un correo válido.</small> }
+      </label>
+      <label>
+        <span>Contraseña</span>
+        <input type="password" formControlName="password">
+        @if (form.controls.password.touched && form.controls.password.invalid) { <small>Mínimo 6 caracteres.</small> }
+      </label>
+      <button class="btn btn-primary full" type="submit">Entrar</button>
+    </form>
+
+    <div class="demo">
+      <strong>Cuentas de demostración</strong>
+      <button type="button" (click)="useAccount('cliente@lojavents.ec')">Cliente</button>
+      <button type="button" (click)="useAccount('propietario@lojavents.ec')">Propietario</button>
+      <button type="button" (click)="useAccount('admin@lojavents.ec')">Administrador</button>
+      <span>Contraseña: 123456</span>
+    </div>
+
+    <p class="switch">¿No tienes cuenta? <a routerLink="/registro">Regístrate</a></p>
+  </div>
+</section>

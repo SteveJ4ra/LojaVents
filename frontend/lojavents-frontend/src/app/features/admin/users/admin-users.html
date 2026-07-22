@@ -1,0 +1,14 @@
+<div class="portal-heading"><span class="eyebrow">Cuentas</span><h1>Gestión de usuarios</h1><p>Consulta roles y activa o suspende cuentas.</p></div>
+<section class="panel">
+  <div class="table-wrap"><table><thead><tr><th>Usuario</th><th>Contacto</th><th>Roles</th><th>Estado</th><th>Acción</th></tr></thead><tbody>
+    @for (user of users(); track user.id) {
+      <tr>
+        <td><strong>{{ user.fullName }}</strong><small>{{ user.id }}</small></td>
+        <td>{{ user.email }}<small>{{ user.phone }}</small></td>
+        <td><div class="badges">@for (role of user.roles; track role) { <app-status-badge [status]="role" /> }</div></td>
+        <td><app-status-badge [status]="user.status" /></td>
+        <td><button class="btn btn-secondary" type="button" [disabled]="user.roles.includes('ADMIN')" (click)="changeStatus(user)">{{ user.status === 'ACTIVO' ? 'Suspender' : 'Activar' }}</button></td>
+      </tr>
+    }
+  </tbody></table></div>
+</section>

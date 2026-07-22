@@ -1,0 +1,41 @@
+.detail { padding-top:30px; padding-bottom:70px; }
+.breadcrumbs { display:flex; gap:8px; color:var(--text-muted); font-size:.9rem; margin-bottom:18px; }
+.breadcrumbs a { color:var(--primary); text-decoration:none; }
+.title-row { display:flex; justify-content:space-between; gap:20px; align-items:end; }
+.title-row h1 { margin:0; font-size:clamp(2rem,5vw,3.3rem); }
+.title-row p { color:var(--text-muted); }
+.actions { display:flex; gap:10px; }
+.gallery { display:grid; grid-template-columns:2fr 1fr; gap:12px; margin:28px 0 38px; max-height:520px; overflow:hidden; border-radius:22px; }
+.gallery img { width:100%; height:100%; object-fit:cover; background:#eee; }
+.gallery .primary { grid-row:span 2; min-height:420px; }
+.content-layout { display:grid; grid-template-columns:minmax(0,1fr) 340px; gap:48px; }
+main section { border-bottom:1px solid var(--border); padding:0 0 34px; margin-bottom:34px; }
+main h2 { font-size:1.55rem; }
+main p, li { color:var(--text-muted); line-height:1.7; }
+.facts { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:24px; }
+.facts div { background:var(--surface-muted); border-radius:14px; padding:16px; }
+.facts strong,.facts span { display:block; }
+.facts strong { font-size:1.25rem; }
+.facts span { color:var(--text-muted); font-size:.82rem; margin-top:4px; }
+.chips,.amenities { display:flex; flex-wrap:wrap; gap:10px; }
+.chips span,.amenities span { background:var(--primary-soft); color:var(--primary-dark); padding:9px 12px; border-radius:999px; }
+.reviews { display:grid; gap:14px; }
+.reviews article { border:1px solid var(--border); border-radius:14px; padding:18px; }
+.reviews article > div { display:flex; justify-content:space-between; }
+.stars { color:#c27a00 !important; letter-spacing:2px; }
+.booking-card { position:sticky; top:96px; height:max-content; border:1px solid var(--border); border-radius:18px; padding:24px; box-shadow:var(--shadow-md); }
+.booking-card > p { margin-top:0; }
+.booking-card strong { font-size:1.5rem; }
+.booking-card li { margin-bottom:9px; }
+.full { width:100%; }
+.not-found { padding:100px 0; }
+@media(max-width:850px){
+  .title-row,.content-layout { display:block; }
+  .actions { margin-top:16px; }
+  .booking-card { position:static; margin-top:25px; }
+}
+@media(max-width:560px){
+  .gallery { grid-template-columns:1fr; max-height:none; }
+  .gallery .primary { min-height:280px; }
+  .facts { grid-template-columns:1fr; }
+}

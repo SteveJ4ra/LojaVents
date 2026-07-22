@@ -1,0 +1,16 @@
+<section class="page-header"><div class="container"><span class="eyebrow">Cuenta</span><h1>Mi perfil</h1><p>Administra tus datos personales, contraseña y permisos.</p></div></section>
+<section class="container profile-layout">
+  @if (user(); as user) {
+    <aside><div class="avatar">{{ user.fullName.charAt(0) }}</div><h2>{{ user.fullName }}</h2><p>{{ user.email }}</p><div class="badges">@for (role of user.roles; track role) { <app-status-badge [status]="role" /> }</div><p>Estado de la cuenta</p><app-status-badge [status]="user.status" /><p>Verificación de propietario</p><app-status-badge [status]="user.ownerVerificationStatus" /></aside>
+    <main>
+      <section class="panel"><h2>Información personal</h2><form [formGroup]="form" (ngSubmit)="save()" novalidate><small class="required-legend">Campos obligatorios</small>
+        <label for="profile-name"><span>Nombres completos *</span><input id="profile-name" formControlName="fullName" aria-required="true" autocomplete="name">@if (form.controls.fullName.touched && form.controls.fullName.invalid) { <small class="error-msg" role="alert">Ingresa tu nombre completo.</small> }</label>
+        <label for="profile-phone"><span>Teléfono *</span><input id="profile-phone" formControlName="phone" aria-required="true" autocomplete="tel">@if (form.controls.phone.touched && form.controls.phone.invalid) { <small class="error-msg" role="alert">Ingresa un teléfono válido.</small> }</label>
+        <label for="profile-email"><span>Correo electrónico</span><input id="profile-email" [value]="user.email" disabled autocomplete="email"></label>
+        <button class="btn btn-primary" type="submit" [disabled]="savingProfile()">{{ savingProfile() ? 'Guardando...' : 'Guardar cambios' }}</button>
+      </form></section>
+      <section class="panel"><h2>Cambiar contraseña</h2><form [formGroup]="passwordForm" (ngSubmit)="changePassword()"><label for="current-password"><span>Contraseña actual</span><input id="current-password" type="password" formControlName="currentPassword" autocomplete="current-password"></label><label for="new-password"><span>Nueva contraseña</span><input id="new-password" type="password" formControlName="newPassword" autocomplete="new-password"></label><label for="confirm-password"><span>Confirmar contraseña</span><input id="confirm-password" type="password" formControlName="confirmPassword" autocomplete="new-password"></label><button class="btn btn-secondary" type="submit" [disabled]="savingPassword()">{{ savingPassword() ? 'Actualizando...' : 'Actualizar contraseña' }}</button></form></section>
+      <section class="panel danger-zone"><h2>Dar de baja la cuenta</h2><p>La cuenta quedará inactiva y se cerrará la sesión. Un administrador podrá reactivarla posteriormente.</p><button class="btn btn-danger" type="button" [disabled]="user.roles.includes('ADMINISTRADOR')" (click)="deactivate()">Dar de baja mi cuenta</button></section>
+    </main>
+  }
+</section>

@@ -1,0 +1,12 @@
+<section class="auth-page">
+  <div class="auth-card">
+    <div class="auth-intro"><span class="eyebrow">Bienvenido</span><h1>Inicia sesión</h1><p>Accede a tus reservas, favoritos y paneles según tu rol.</p></div>
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <small class="required-legend">Campos obligatorios</small>
+      <label for="login-email"><span>Correo electrónico *</span><input id="login-email" type="email" formControlName="email" aria-required="true" autocomplete="email">@if (form.controls.email.touched && form.controls.email.invalid) { <small class="error-msg" role="alert">Ingresa un correo válido.</small> }</label>
+      <label for="login-password"><span>Contraseña *</span><input id="login-password" type="password" formControlName="password" aria-required="true" autocomplete="current-password">@if (form.controls.password.touched && form.controls.password.invalid) { <small class="error-msg" role="alert">La contraseña debe tener al menos 6 caracteres.</small> }</label>
+      <button class="btn btn-primary full" type="submit" [disabled]="loading()">{{ loading() ? 'Ingresando...' : 'Entrar' }}</button>
+    </form>
+    <p class="switch">¿No tienes cuenta? <a routerLink="/registro">Regístrate</a></p>
+  </div>
+</section>

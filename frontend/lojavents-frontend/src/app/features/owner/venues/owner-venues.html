@@ -1,0 +1,14 @@
+<div class="portal-heading"><div><span class="eyebrow">Catálogo propio</span><h1>Mis locales</h1></div><a class="btn btn-primary" routerLink="/propietario/locales/nuevo">Registrar local</a></div>
+@if (venues().length) {
+  <div class="venue-list">
+    @for (venue of venues(); track venue.id) {
+      <article>
+        <img [src]="venue.images[0]" [alt]="venue.name">
+        <div><div class="title"><h2>{{ venue.name }}</h2><app-status-badge [status]="venue.active ? 'ACTIVO' : 'INACTIVO'" /></div><p>{{ venue.neighborhood }} · {{ venue.capacity }} personas · {{ venue.pricePerHour | currency:'USD' }}/hora</p></div>
+        <div class="actions"><a class="btn btn-secondary" [routerLink]="['/propietario/locales',venue.id,'editar']">Editar</a><a class="btn btn-secondary" [routerLink]="['/propietario/disponibilidad']" [queryParams]="{venueId:venue.id}">Calendario</a><button class="btn btn-secondary" type="button" (click)="toggle(venue.id)">{{ venue.active ? 'Desactivar' : 'Activar' }}</button></div>
+      </article>
+    }
+  </div>
+} @else {
+  <app-empty-state icon="⌂" title="No has registrado locales" message="Crea el primer espacio para comenzar a recibir reservas." link="/propietario/locales/nuevo" linkLabel="Registrar local" />
+}

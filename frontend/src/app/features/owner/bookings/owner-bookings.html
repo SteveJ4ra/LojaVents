@@ -1,0 +1,30 @@
+<div class="portal-heading">
+  <div><span class="eyebrow">Propietario</span><h1>Reservas recibidas</h1><p>Consulta los eventos reservados y el estado de sus pagos.</p></div>
+  <article class="income"><span>Ingresos aprobados</span><strong>{{ approvedIncome() | currency:'USD' }}</strong></article>
+</div>
+
+<section class="panel">
+  @if (bookings().length) {
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Local</th><th>Cliente</th><th>Fecha</th><th>Duración</th><th>Asistentes</th><th>Total</th><th>Pago</th><th>Estado</th></tr></thead>
+        <tbody>
+          @for (booking of bookings(); track booking.id) {
+            <tr>
+              <td><strong>{{ booking.venueName }}</strong><small>{{ booking.id }}</small></td>
+              <td>{{ booking.userName }}<small>{{ booking.userEmail }}</small></td>
+              <td>{{ booking.date | date:'mediumDate' }}<small>{{ booking.startTime }}</small></td>
+              <td>{{ booking.durationHours }} horas</td>
+              <td>{{ booking.attendees }}</td>
+              <td>{{ booking.total | currency:'USD' }}</td>
+              <td>{{ booking.paymentReference || 'Pendiente' }}<small>{{ booking.paymentMessage || 'Sin procesar' }}</small></td>
+              <td><app-status-badge [status]="booking.status" /></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  } @else {
+    <p class="empty">Todavía no existen reservas para tus locales.</p>
+  }
+</section>

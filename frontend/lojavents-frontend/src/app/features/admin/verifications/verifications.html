@@ -1,0 +1,13 @@
+<div class="portal-heading"><span class="eyebrow">Propietarios</span><h1>Solicitudes de verificación</h1><p>Aprueba el rol adicional de propietario para cuentas cliente.</p></div>
+@if (requests().length) {
+  <div class="request-list">
+    @for (request of requests(); track request.userId) {
+      <article>
+        <div><h2>{{ userName(request.userId) }}</h2><p>Identificación: {{ request.identification }}</p><p>Documento: {{ request.documentReference }}</p><blockquote>{{ request.notes }}</blockquote><small>Enviada: {{ request.submittedAt }}</small></div>
+        <div class="actions"><button class="btn btn-primary" type="button" (click)="approve(request.userId)">Aprobar</button><button class="btn btn-danger" type="button" (click)="reject(request.userId)">Rechazar</button></div>
+      </article>
+    }
+  </div>
+} @else {
+  <app-empty-state icon="✓" title="No hay solicitudes pendientes" message="Las nuevas solicitudes aparecerán aquí para revisión." />
+}

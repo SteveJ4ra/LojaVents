@@ -1,0 +1,60 @@
+@startuml
+title LojaVents - Diagrama de paquetes
+
+left to right direction
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam linetype ortho
+skinparam monochrome true
+skinparam nodesep 14
+skinparam ranksep 18
+
+together {
+  package "Frontend" as Frontend {
+    package "core" as core
+    package "features" as features
+    package "layout" as layout
+    package "shared" as shared
+  }
+
+  package "Backend" as Backend {
+    package "Módulos funcionales" as functional {
+      package "auth" as auth
+      package "user" as user
+      package "venue" as venue
+      package "reservation" as reservation
+      package "engagement" as engagement
+      package "dashboard" as dashboard
+    }
+
+    package "Módulos transversales" as transversal {
+      package "audit" as audit
+      package "storage" as storage
+      package "system" as system
+      package "config" as config
+      package "common" as common
+    }
+  }
+}
+
+features ..> core
+features ..> shared
+features ..> layout
+
+shared -[hidden]right-> auth
+
+auth ..> user
+user ..> storage
+venue ..> user
+venue ..> reservation
+reservation ..> user
+reservation ..> venue
+engagement ..> venue
+engagement ..> reservation
+dashboard ..> engagement
+dashboard ..> reservation
+system ..> audit
+storage ..> common
+
+@enduml

@@ -1,0 +1,86 @@
+@if (venue(); as venue) {
+  <section class="container detail">
+    <div class="breadcrumbs"><a routerLink="/locales">Locales</a><span>/</span><span>{{ venue.name }}</span></div>
+
+    <div class="title-row">
+      <div>
+        <h1>{{ venue.name }}</h1>
+        <p>★ {{ venue.rating }} · {{ venue.reviewCount }} reseñas · {{ venue.neighborhood }}, Loja</p>
+      </div>
+      <div class="actions">
+        <button class="btn btn-secondary" type="button" (click)="share()">Compartir</button>
+        <button class="btn btn-secondary" type="button" (click)="favorite()">
+          {{ favorites.has(venue.id) ? '♥ Guardado' : '♡ Guardar' }}
+        </button>
+      </div>
+    </div>
+
+    <div class="gallery">
+      @for (image of venue.images; track image; let i = $index) {
+        <img [class.primary]="i === 0" [src]="image" [alt]="venue.name">
+      }
+    </div>
+
+    <div class="content-layout">
+      <main>
+        <section>
+          <h2>Sobre este espacio</h2>
+          <p>{{ venue.description }}</p>
+          <div class="facts">
+            <div><strong>{{ venue.capacity }}</strong><span>capacidad máxima</span></div>
+            <div><strong>{{ venue.pricePerHour | currency:'USD' }}</strong><span>por hora</span></div>
+            <div><strong>{{ venue.eventTypes.length }}</strong><span>tipos de evento</span></div>
+          </div>
+        </section>
+
+        <section>
+          <h2>Ideal para</h2>
+          <div class="chips">@for (type of venue.eventTypes; track type) { <span>{{ type }}</span> }</div>
+        </section>
+
+        <section>
+          <h2>Servicios incluidos</h2>
+          <div class="amenities">@for (item of venue.amenities; track item) { <span>✓ {{ item }}</span> }</div>
+        </section>
+
+        <section>
+          <h2>Reglas del local</h2>
+          <ul>@for (rule of venue.rules; track rule) { <li>{{ rule }}</li> }</ul>
+          <h3>Política de cancelación</h3>
+          <p>{{ venue.cancellationPolicy }}</p>
+        </section>
+
+        <section>
+          <h2>Reseñas</h2>
+          @if (reviews().length) {
+            <div class="reviews">
+              @for (review of reviews(); track review.id) {
+                <article>
+                  <div><strong>{{ review.userName }}</strong><span>{{ review.createdAt | date:'mediumDate' }}</span></div>
+                  <p class="stars">{{ '★'.repeat(review.rating) }}{{ '☆'.repeat(5-review.rating) }}</p>
+                  <p>{{ review.comment }}</p>
+                </article>
+              }
+            </div>
+          } @else {
+            <p>Aún no existen reseñas para este local.</p>
+          }
+        </section>
+      </main>
+
+      <aside class="booking-card">
+        <p><strong>{{ venue.pricePerHour | currency:'USD' }}</strong> / hora</p>
+        <ul>
+          <li>Confirmación inmediata después del pago.</li>
+          <li>La disponibilidad final la valida el servidor.</li>
+        </ul>
+        <a class="btn btn-primary full" [routerLink]="['/reservar', venue.id]">Reservar ahora</a>
+      </aside>
+    </div>
+  </section>
+} @else {
+  <section class="container not-found">
+    <h1>Local no encontrado</h1>
+    <a class="btn btn-primary" routerLink="/locales">Volver al catálogo</a>
+  </section>
+}

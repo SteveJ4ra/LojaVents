@@ -1,0 +1,27 @@
+<section class="page-header"><div class="container"><span class="eyebrow">Anfitriones</span><h1>Publica tu local en LojaVents</h1><p>El rol de propietario se añade a tu cuenta de cliente después de una verificación.</p></div></section>
+<section class="container request-layout">
+  <div>
+    <h2>Beneficios del rol propietario</h2>
+    <article><span>1</span><div><h3>Publica tus espacios</h3><p>Registra información, imágenes, precios y servicios.</p></div></article>
+    <article><span>2</span><div><h3>Controla la disponibilidad</h3><p>Bloquea fechas y rangos de horas que no se pueden reservar.</p></div></article>
+    <article><span>3</span><div><h3>Conserva tu rol cliente</h3><p>También puedes seguir reservando locales de otros anfitriones.</p></div></article>
+  </div>
+
+  <section class="panel">
+    @if (user(); as user) {
+      @if (user.roles.includes('PROPIETARIO')) {
+        <div class="state"><h2>Ya eres propietario</h2><p>Tu cuenta tiene acceso al panel de anfitrión.</p><a class="btn btn-primary" routerLink="/propietario">Abrir panel</a></div>
+      } @else if (user.ownerVerificationStatus === 'PENDIENTE') {
+        <div class="state"><app-status-badge status="PENDIENTE" /><h2>Solicitud en revisión</h2><p>Un administrador debe aprobar la demostración desde su panel.</p></div>
+      } @else {
+        <h2>Solicitud de verificación</h2>
+        <form [formGroup]="form" (ngSubmit)="submit()">
+          <label><span>Número de identificación</span><input formControlName="identification"></label>
+          <label><span>Documento de respaldo</span><input type="file" accept=".pdf,.png,.jpg,.jpeg" (change)="fileChanged($event)"><small>Solo se guarda el nombre del archivo en esta demostración.</small></label>
+          <label><span>Información del local</span><textarea rows="5" formControlName="notes" placeholder="Describe brevemente el local que deseas publicar"></textarea></label>
+          <button class="btn btn-primary full" type="submit">Enviar solicitud</button>
+        </form>
+      }
+    }
+  </section>
+</section>

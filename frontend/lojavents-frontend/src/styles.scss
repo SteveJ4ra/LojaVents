@@ -1,0 +1,59 @@
+:root {
+  --primary: #256744;
+  --primary-dark: #194b31;
+  --primary-soft: #e3f3e9;
+  --accent: #d68736;
+  --danger: #b42318;
+  --text: #18231d;
+  --text-muted: #637069;
+  --surface: #ffffff;
+  --surface-muted: #f6f7f5;
+  --border: #dde3df;
+  --shadow-sm: 0 4px 14px rgba(24,35,29,.07);
+  --shadow-md: 0 12px 28px rgba(24,35,29,.12);
+  --shadow-lg: 0 24px 55px rgba(24,35,29,.16);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: var(--text);
+  background: var(--surface);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin:0; min-width:320px; min-height:100vh; background:var(--surface); }
+button,input,select,textarea { font:inherit; }
+button:disabled { opacity:.6; cursor:not-allowed !important; }
+img { max-width:100%; }
+a { color:inherit; }
+h1,h2,h3 { line-height:1.16; }
+
+.container { width:min(1180px, calc(100% - 36px)); margin-inline:auto; }
+
+.btn {
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  border:1px solid transparent; border-radius:11px; padding:.78rem 1.15rem;
+  font-weight:750; text-decoration:none; cursor:pointer; transition:.18s ease;
+}
+.btn:hover { transform:translateY(-1px); }
+.btn-primary { background:var(--primary); color:white; }
+.btn-primary:hover { background:var(--primary-dark); }
+.btn-secondary { background:white; color:var(--text); border-color:var(--border); }
+.btn-secondary:hover { border-color:#aab7af; }
+.btn-danger { background:var(--danger); color:white; }
+.eyebrow { display:inline-block; color:var(--primary); font-size:.78rem; font-weight:850; letter-spacing:.11em; text-transform:uppercase; }
+.page-header { padding:54px 0; background:linear-gradient(135deg,var(--primary-soft),#fff8ef); border-bottom:1px solid var(--border); }
+.page-header h1 { font-size:clamp(2.1rem,5vw,3.4rem); margin:9px 0; }
+.page-header p { color:var(--text-muted); margin:0; max-width:700px; }
+
+input,select,textarea {
+  width:100%; border:1px solid #cfd8d2; border-radius:10px; background:white;
+  color:var(--text); padding:.78rem .85rem; outline:none; transition:border .15s,box-shadow .15s;
+}
+input:focus,select:focus,textarea:focus { border-color:var(--primary); box-shadow:0 0 0 3px rgba(37,103,68,.12); }
+textarea { resize:vertical; }
+
+@media (max-width:500px) {
+  .container { width:min(100% - 24px,1180px); }
+  .page-header { padding:38px 0; }
+}

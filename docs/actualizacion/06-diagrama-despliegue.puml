@@ -1,0 +1,54 @@
+@startuml
+title LojaVents - Diagrama de despliegue
+
+left to right direction
+
+skinparam backgroundColor white
+skinparam monochrome true
+skinparam shadowing false
+skinparam linetype ortho
+skinparam nodesep 24
+skinparam ranksep 30
+
+node "Cliente web" as Client <<device>> {
+  node "Navegador" as Browser <<executionEnvironment>>
+}
+
+node "Host Docker" as DockerHost {
+  node "Docker Compose" as Compose <<executionEnvironment>> {
+    frame "Red Docker" as DockerNetwork {
+      node "Frontend" as Frontend <<executionEnvironment>> {
+        node "Nginx" as Nginx <<executionEnvironment>> {
+          artifact "Angular dist" as AngularDist
+        }
+      }
+
+      node "Backend" as Backend <<executionEnvironment>> {
+        node "JVM" as JVM <<executionEnvironment>> {
+          node "Spring Boot" as SpringBoot <<executionEnvironment>> {
+            artifact "app.jar" as BackendJar
+          }
+        }
+      }
+
+      node "PostgreSQL" as PostgreSQLService <<executionEnvironment>> {
+        database "PostgreSQL 17" as PostgreSQL
+      }
+
+      node "MongoDB" as MongoDBService <<executionEnvironment>> {
+        database "MongoDB 8 / GridFS" as MongoDB
+      }
+    }
+  }
+}
+
+Browser --> Nginx : HTTPS : 443
+Nginx --> SpringBoot : HTTP / REST : 8080
+SpringBoot --> PostgreSQL : JPA / 5432
+SpringBoot --> MongoDB : MongoDB / 27017
+
+Frontend -[hidden]right-> Backend
+Backend -[hidden]right-> PostgreSQLService
+PostgreSQLService -[hidden]down-> MongoDBService
+
+@enduml

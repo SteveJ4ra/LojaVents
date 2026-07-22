@@ -1,0 +1,87 @@
+@startuml
+title LojaVents - Diagrama de componentes
+
+left to right direction
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam componentStyle uml2
+skinparam linetype ortho
+skinparam monochrome true
+skinparam nodesep 18
+skinparam ranksep 24
+
+rectangle "Frontend" as Frontend {
+  component "SPA Angular" as SPA
+  component "Nginx" as Nginx
+}
+
+rectangle "Backend LojaVents" as Backend {
+  () "API Web" as APIWeb
+  component "API REST" as API
+  () "Usuarios" as UsersPort
+  component "Autenticación y usuarios" as Identity
+  () "Locales" as VenuesPort
+  component "Locales y disponibilidad" as Venues
+  () "Reservas" as ReservationsPort
+  component "Reservas y pago simulado" as Reservations
+  () "Participación" as EngagementPort
+  component "Favoritos y reseñas" as Engagement
+  () "Indicadores" as DashboardsPort
+  component "Paneles" as Dashboards
+  component "Auditoría" as Audit
+  () "Auditoría" as AuditData
+  component "Medios" as Media
+  () "Archivos" as FilesData
+  () "Datos SQL" as SQLData
+  component "Persistencia SQL" as SQLPersistence
+}
+
+rectangle "Persistencia" as Persistence {
+  component "PostgreSQL" as PostgreSQL <<database>>
+  component "MongoDB / GridFS" as MongoGridFS <<database>>
+}
+
+SPA -down- Nginx
+Nginx -right- APIWeb
+APIWeb -right- API
+
+API - UsersPort
+UsersPort - Identity
+API - VenuesPort
+VenuesPort - Venues
+API - ReservationsPort
+ReservationsPort - Reservations
+API - EngagementPort
+EngagementPort - Engagement
+API - DashboardsPort
+DashboardsPort - Dashboards
+
+Identity - SQLData
+Reservations - SQLData
+SQLData - SQLPersistence
+SQLPersistence -right- PostgreSQL
+
+Audit - AuditData
+AuditData -right- MongoGridFS
+Media - FilesData
+FilesData -right- MongoGridFS
+
+API -[hidden]right-> ReservationsPort
+UsersPort -[hidden]down-> VenuesPort
+VenuesPort -[hidden]down-> ReservationsPort
+ReservationsPort -[hidden]down-> EngagementPort
+EngagementPort -[hidden]down-> DashboardsPort
+Identity -[hidden]down-> Venues
+Venues -[hidden]down-> Reservations
+Reservations -[hidden]down-> Engagement
+Engagement -[hidden]down-> Dashboards
+Identity -[hidden]right-> SQLPersistence
+SQLPersistence -[hidden]down-> Audit
+Audit -[hidden]down-> Media
+PostgreSQL -[hidden]down-> MongoGridFS
+
+Reservations ..> Venues
+Engagement ..> Reservations
+Dashboards ..> Audit
+
+@enduml

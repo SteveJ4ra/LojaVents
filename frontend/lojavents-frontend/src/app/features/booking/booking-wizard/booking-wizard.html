@@ -1,0 +1,104 @@
+@if (venue(); as venue) {
+  <section class="container booking-page">
+    <div class="booking-heading">
+      <a routerLink="/locales/{{ venue.id }}">← Volver al local</a>
+      <h1>Reserva {{ venue.name }}</h1>
+      <p>Flujo académico con pago completamente simulado.</p>
+    </div>
+
+    <div class="progress">
+      @for (label of ['Evento','Facturación','Condiciones','Pago','Confirmación']; track label; let i = $index) {
+        <div [class.active]="step() >= i + 1"><span>{{ i + 1 }}</span><small>{{ label }}</small></div>
+      }
+    </div>
+
+    <div class="wizard-layout">
+      <main class="wizard-card">
+        @if (step() === 1) {
+          <h2>Datos del evento</h2>
+          <form [formGroup]="eventForm">
+            <div class="form-grid">
+              <label><span>Fecha</span><input type="date" formControlName="date"></label>
+              <label><span>Hora de inicio</span><input type="time" formControlName="startTime"></label>
+              <label><span>Duración (horas)</span><input type="number" min="1" max="12" formControlName="durationHours"></label>
+              <label><span>Número de asistentes</span><input type="number" min="1" [max]="venue.capacity" formControlName="attendees"></label>
+            </div>
+            <div class="buttons"><button class="btn btn-primary" type="button" (click)="nextFromEvent()">Continuar</button></div>
+          </form>
+        }
+
+        @if (step() === 2) {
+          <h2>Dirección de facturación</h2>
+          <p class="help">Estos datos forman parte de la demostración del comprobante.</p>
+          <form [formGroup]="billingForm">
+            <div class="form-grid">
+              <label><span>Ciudad</span><input formControlName="city"></label>
+              <label><span>Barrio</span><input formControlName="neighborhood"></label>
+              <label class="wide"><span>Calle y referencia</span><input formControlName="street"></label>
+            </div>
+            <div class="buttons"><button class="btn btn-secondary" type="button" (click)="back()">Atrás</button><button class="btn btn-primary" type="button" (click)="nextFromBilling()">Continuar</button></div>
+          </form>
+        }
+
+        @if (step() === 3) {
+          <h2>Reglas y política de cancelación</h2>
+          <div class="rules">
+            <h3>Reglas del local</h3>
+            <ul>@for (rule of venue.rules; track rule) { <li>{{ rule }}</li> }</ul>
+            <h3>Política de cancelación</h3>
+            <p>{{ venue.cancellationPolicy }}</p>
+          </div>
+          <form [formGroup]="rulesForm">
+            <label class="checkbox"><input type="checkbox" formControlName="acceptRules"><span>He leído y acepto las reglas del local.</span></label>
+            <label class="checkbox"><input type="checkbox" formControlName="acceptCancellation"><span>Acepto la política de cancelación.</span></label>
+            <div class="buttons"><button class="btn btn-secondary" type="button" (click)="back()">Atrás</button><button class="btn btn-primary" type="button" (click)="nextFromRules()">Ir al pago</button></div>
+          </form>
+        }
+
+        @if (step() === 4) {
+          <div class="sandbox-banner">ENTORNO DE PRUEBA · NO SE REALIZARÁ NINGÚN COBRO REAL</div>
+          <div class="payment-box">
+            <div class="paypal-mark">Pay<span>Pal</span> Sandbox</div>
+            <p>Esta pantalla representa la respuesta de una pasarela de pago. En la integración real, el backend crearía y confirmaría la orden.</p>
+            <div class="payment-total"><span>Total simulado</span><strong>{{ total() | currency:'USD' }}</strong></div>
+            @if (error()) { <div class="error-box">{{ error() }}</div> }
+            <button class="btn paypal full" type="button" [disabled]="processing()" (click)="pay('APPROVE')">
+              {{ processing() ? 'Procesando…' : 'Simular pago exitoso' }}
+            </button>
+            <button class="btn btn-secondary full" type="button" [disabled]="processing()" (click)="pay('REJECT')">Simular pago rechazado</button>
+          </div>
+          <div class="buttons"><button class="btn btn-secondary" type="button" (click)="back()">Atrás</button></div>
+        }
+
+        @if (step() === 5) {
+          @if (result(); as booking) {
+            <div class="confirmation">
+              <div class="check">✓</div>
+              <h2>Reserva confirmada</h2>
+              <p>El pago simulado fue aprobado y la reserva quedó completada inmediatamente.</p>
+              <dl>
+                <div><dt>Código</dt><dd>{{ booking.id }}</dd></div>
+                <div><dt>Referencia de pago</dt><dd>{{ booking.paymentReference }}</dd></div>
+                <div><dt>Fecha</dt><dd>{{ booking.date }} a las {{ booking.startTime }}</dd></div>
+                <div><dt>Total</dt><dd>{{ booking.total | currency:'USD' }}</dd></div>
+              </dl>
+              <div class="buttons centered-buttons">
+                <a class="btn btn-primary" routerLink="/mis-reservas">Ver mis reservas</a>
+                <a class="btn btn-secondary" routerLink="/locales">Seguir explorando</a>
+              </div>
+            </div>
+          }
+        }
+      </main>
+
+      <aside class="summary">
+        <img [src]="venue.images[0]" [alt]="venue.name">
+        <h3>{{ venue.name }}</h3>
+        <p>{{ venue.neighborhood }}, Loja</p>
+        <div><span>{{ eventForm.controls.durationHours.value }} horas × {{ venue.pricePerHour | currency:'USD' }}</span><strong>{{ subtotal() | currency:'USD' }}</strong></div>
+        <div><span>Tarifa de servicio simulada</span><strong>{{ serviceFee() | currency:'USD' }}</strong></div>
+        <div class="total"><span>Total</span><strong>{{ total() | currency:'USD' }}</strong></div>
+      </aside>
+    </div>
+  </section>
+}

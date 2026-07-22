@@ -1,0 +1,119 @@
+@if (venue(); as venue) {
+  <section class="container booking-page">
+    <div class="booking-heading">
+      <a routerLink="/locales/{{ venue.id }}">← Volver al local</a>
+      <h1>Reserva {{ venue.name }}</h1>
+      <p>Completa los datos de tu evento y confirma la reserva.</p>
+    </div>
+
+    <div class="progress">
+      @for (label of ['Evento','Facturación','Condiciones','Pago','Confirmación']; track label; let i = $index) {
+        <div [class.active]="step() >= i + 1"><span>{{ i + 1 }}</span><small>{{ label }}</small></div>
+      }
+    </div>
+
+    <div class="wizard-layout">
+      <main class="wizard-card">
+        @if (step() === 1) {
+          <h2>Datos del evento</h2>
+          <form [formGroup]="eventForm" novalidate>
+            <small class="required-legend">Campos obligatorios</small>
+            <p class="help">Este local admite hasta <strong>{{ venue.capacity }} personas</strong>. Las reservas pueden finalizar al dia siguiente.</p>
+            <div class="form-grid">
+              <label for="booking-date"><span>Fecha *</span><input id="booking-date" type="date" [min]="minDate" formControlName="date" aria-required="true" autocomplete="off">@if (eventForm.controls.date.touched && eventForm.controls.date.invalid) { <small class="error-msg" role="alert">Selecciona la fecha del evento.</small> }</label>
+              <label for="booking-start"><span>Hora de inicio *</span><input id="booking-start" type="time" formControlName="startTime" aria-required="true">@if (eventForm.controls.startTime.touched && eventForm.controls.startTime.invalid) { <small class="error-msg" role="alert">Indica la hora de inicio.</small> }</label>
+              <label><span>Duración (horas)</span><input type="number" min="1" max="12" formControlName="durationHours"></label>
+              <label><span>Número de asistentes</span><input type="number" min="1" [max]="venue.capacity" formControlName="attendees"></label>
+            </div>
+            <div class="buttons">
+              <button class="btn btn-primary" type="button" [disabled]="checkingAvailability()" (click)="nextFromEvent()">
+                {{ checkingAvailability() ? 'Verificando…' : 'Comprobar disponibilidad' }}
+              </button>
+            </div>
+          </form>
+        }
+
+        @if (step() === 2) {
+          <h2>Dirección de facturación</h2>
+          <p class="help">Estos datos se guardarán junto con la reserva y su comprobante.</p>
+          <form [formGroup]="billingForm">
+            <div class="form-grid">
+              <label><span>Ciudad</span><input formControlName="city"></label>
+              <label><span>Barrio</span><input formControlName="neighborhood"></label>
+              <label class="wide"><span>Calle y referencia</span><input formControlName="street"></label>
+            </div>
+            <div class="buttons"><button class="btn btn-secondary" type="button" (click)="back()">Atrás</button><button class="btn btn-primary" type="button" (click)="nextFromBilling()">Continuar</button></div>
+          </form>
+        }
+
+        @if (step() === 3) {
+          <h2>Reglas y política de cancelación</h2>
+          <div class="rules">
+            <h3>Reglas del local</h3>
+            <ul>@for (rule of venue.rules; track rule) { <li>{{ rule }}</li> }</ul>
+            <h3>Política de cancelación</h3>
+            <p>{{ venue.cancellationPolicy }}</p>
+          </div>
+          <form [formGroup]="rulesForm">
+            <label class="checkbox"><input type="checkbox" formControlName="acceptRules"><span>He leído y acepto las reglas del local.</span></label>
+            <label class="checkbox"><input type="checkbox" formControlName="acceptCancellation"><span>Acepto la política de cancelación.</span></label>
+            <div class="buttons"><button class="btn btn-secondary" type="button" (click)="back()">Atrás</button><button class="btn btn-primary" type="button" (click)="nextFromRules()">Ir al pago</button></div>
+          </form>
+        }
+
+        @if (step() === 4) {
+          <div class="payment-box">
+            <div class="payment-heading">Pago seguro</div>
+            <p>Revisa el total y confirma el pago de tu reserva.</p>
+            <div class="payment-total"><span>Total</span><strong>{{ total() | currency:'USD' }}</strong></div>
+
+            @if (error()) {
+              <div class="error-box" role="alert">
+                <strong>Resultado rechazado</strong>
+                <span>{{ error() }}</span>
+                @if (rejectedResult(); as rejected) {
+                  <small>Reserva {{ rejected.id }} · Referencia {{ rejected.paymentReference }}</small>
+                }
+              </div>
+            }
+
+            <button class="btn btn-primary full" type="button" [disabled]="processing()" (click)="pay('APPROVE')">
+              {{ processing() ? 'Procesando…' : 'Pagar ahora' }}
+            </button>
+
+          </div>
+          <div class="buttons"><button class="btn btn-secondary" type="button" [disabled]="processing()" (click)="back()">Atrás</button></div>
+        }
+
+        @if (step() === 5) {
+          @if (result(); as booking) {
+            <div class="confirmation">
+              <div class="check">✓</div>
+              <h2>Reserva confirmada</h2>
+              <p>Tu pago fue aprobado y la reserva quedó completada inmediatamente.</p>
+              <dl>
+                <div><dt>Código</dt><dd>{{ booking.id }}</dd></div>
+                <div><dt>Referencia de pago</dt><dd>{{ booking.paymentReference }}</dd></div>
+                <div><dt>Fecha</dt><dd>{{ booking.date }} a las {{ booking.startTime }}</dd></div>
+                <div><dt>Total</dt><dd>{{ booking.total | currency:'USD' }}</dd></div>
+              </dl>
+              <div class="buttons centered-buttons">
+                <a class="btn btn-primary" routerLink="/mis-reservas">Ver mis reservas</a>
+                <a class="btn btn-secondary" routerLink="/locales">Seguir explorando</a>
+              </div>
+            </div>
+          }
+        }
+      </main>
+
+      <aside class="summary">
+        <img [src]="venue.images[0]" [alt]="venue.name">
+        <h3>{{ venue.name }}</h3>
+        <p>{{ venue.neighborhood }}, Loja</p>
+        <div><span>{{ eventForm.controls.durationHours.value }} horas × {{ venue.pricePerHour | currency:'USD' }}</span><strong>{{ subtotal() | currency:'USD' }}</strong></div>
+        <div><span>Tarifa de servicio (8 %)</span><strong>{{ serviceFee() | currency:'USD' }}</strong></div>
+        <div class="total"><span>Total</span><strong>{{ total() | currency:'USD' }}</strong></div>
+      </aside>
+    </div>
+  </section>
+}

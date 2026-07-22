@@ -1,0 +1,12 @@
+.portal { display:grid; grid-template-columns:245px minmax(0,1fr); gap:34px; padding-top:34px; padding-bottom:60px; }
+aside { background:var(--surface); border:1px solid var(--border); border-radius:18px; padding:20px; height:max-content; position:sticky; top:96px; }
+aside h2 { font-size:1.1rem; margin:0 0 16px; }
+aside a { display:flex; gap:10px; align-items:center; text-decoration:none; color:var(--text-muted); padding:11px 12px; border-radius:10px; font-weight:650; }
+aside a:hover, aside a.active { color:var(--primary); background:var(--primary-soft); }
+main { min-width:0; }
+@media(max-width:800px){
+  .portal { grid-template-columns:1fr; }
+  aside { position:static; display:flex; overflow:auto; gap:8px; }
+  aside h2 { display:none; }
+  aside a { white-space:nowrap; }
+}

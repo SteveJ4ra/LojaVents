@@ -1,0 +1,229 @@
+@startuml
+title LojaVents - Diagrama de clases del dominio
+
+top to bottom direction
+
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam linetype ortho
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+skinparam ArrowColor #4B5563
+skinparam ClassBorderColor #475569
+skinparam ClassFontColor #172033
+skinparam ClassFontSize 11
+skinparam ClassAttributeFontSize 10
+skinparam ClassStereotypeFontSize 10
+skinparam EnumBorderColor #6B7280
+skinparam EnumBackgroundColor #FFFFFF
+skinparam EnumFontColor #172033
+skinparam PackageBorderColor #64748B
+skinparam PackageFontColor #172033
+skinparam PackageFontStyle bold
+skinparam nodesep 42
+skinparam ranksep 52
+
+hide circle
+
+package "Usuarios" as Usuarios #EAF2F8 {
+  class Usuario #F8FBFE {
+    - id: UUID
+    - nombres: String
+    - email: String
+    - passwordHash: String
+    - telefono: String
+    - roles: Set<Rol>
+    - estado: EstadoUsuario
+    - estadoVerificacionPropietario: EstadoVerificacionPropietario
+    - creadoEn: OffsetDateTime
+    --
+    + actualizarPerfil(nombres: String, telefono: String): void
+    + actualizarPasswordHash(passwordHash: String): void
+    + cambiarEstado(estado: EstadoUsuario): void
+    + actualizarVerificacionPropietario(estado: EstadoVerificacionPropietario): void
+    + agregarRol(rol: Rol): void
+  }
+
+  class SolicitudPropietario #F8FBFE {
+    - id: UUID
+    - identificacion: String
+    - documentoReferencia: String
+    - documentoArchivoId: String
+    - documentoNombre: String
+    - documentoTipo: String
+    - notas: String
+    - estado: EstadoSolicitudPropietario
+    - comentarioAdmin: String
+    - creadoEn: OffsetDateTime
+    - revisadoEn: OffsetDateTime
+    --
+    + aprobar(admin: Usuario, comentario: String): void
+    + rechazar(admin: Usuario, comentario: String): void
+  }
+}
+
+package "Locales" as Locales #EAF7EF {
+  class LocalEvento #F7FCF9 {
+    - id: UUID
+    - nombre: String
+    - descripcionCorta: String
+    - descripcion: String
+    - sector: String
+    - direccion: String
+    - precioHora: BigDecimal
+    - capacidad: Integer
+    - calificacion: BigDecimal
+    - totalResenas: Integer
+    - destacado: Boolean
+    - activo: Boolean
+    - pendienteRevision: Boolean
+    - politicaCancelacion: String
+    - tiposEvento: Set<String>
+    - amenidades: Set<String>
+    - reglas: List<String>
+    - imagenes: List<String>
+    - actualizadoEn: OffsetDateTime
+    --
+    + cambiarEstado(activo: Boolean): void
+    + solicitarRevision(): void
+    + aprobarRevision(): void
+    + configurarDestacado(destacado: Boolean): void
+    + configurarCalificacion(calificacion: BigDecimal, totalResenas: Integer): void
+    + agregarBloqueo(bloqueo: BloqueDisponibilidad): void
+    + eliminarBloqueo(bloqueoId: UUID): Boolean
+  }
+
+  class BloqueDisponibilidad #F7FCF9 {
+    - id: UUID
+    - fecha: LocalDate
+    - horaInicio: LocalTime
+    - horaFin: LocalTime
+    - motivo: String
+  }
+}
+
+package "Reservas y pagos" as ReservasPagos #FFF4E5 {
+  class Reserva #FFFBF3 {
+    - id: UUID
+    - fecha: LocalDate
+    - horaInicio: LocalTime
+    - duracionHoras: Integer
+    - asistentes: Integer
+    - ciudadFacturacion: String
+    - sectorFacturacion: String
+    - direccionFacturacion: String
+    - subtotal: BigDecimal
+    - tarifaServicio: BigDecimal
+    - total: BigDecimal
+    - estado: EstadoReserva
+    - motivoRechazo: String
+    - reglasAceptadas: Boolean
+    - cancelacionAceptada: Boolean
+    - resenaEnviada: Boolean
+    - creadoEn: OffsetDateTime
+    - actualizadoEn: OffsetDateTime
+    - version: Long
+    --
+    + aprobarPago(pago: PagoSimulado): void
+    + rechazarPago(pago: PagoSimulado, motivo: String): void
+    + marcarResenaEnviada(): void
+  }
+
+  class PagoSimulado #FFFBF3 {
+    - id: UUID
+    - estado: EstadoPagoSimulado
+    - modo: ModoPagoSimulado
+    - referencia: String
+    - mensaje: String
+    - procesadoEn: OffsetDateTime
+  }
+}
+
+package "Interacción" as Interaccion #F4ECF7 {
+  class Favorito #FBF8FC {
+    - id: UUID
+    - creadoEn: OffsetDateTime
+  }
+
+  class Resena #FBF8FC {
+    - id: UUID
+    - calificacion: Integer
+    - comentario: String
+    - creadoEn: OffsetDateTime
+    - actualizadoEn: OffsetDateTime
+  }
+}
+
+package "Enumeraciones" as Enumeraciones #F3F4F6 {
+  enum Rol {
+    CLIENTE
+    PROPIETARIO
+    ADMINISTRADOR
+  }
+
+  enum EstadoUsuario {
+    ACTIVO
+    SUSPENDIDO
+    INACTIVO
+  }
+
+  enum EstadoVerificacionPropietario {
+    NO_SOLICITADA
+    PENDIENTE
+    APROBADA
+    RECHAZADA
+  }
+
+  enum EstadoSolicitudPropietario {
+    PENDIENTE
+    APROBADA
+    RECHAZADA
+  }
+
+  enum EstadoReserva {
+    EN_PROCESO
+    COMPLETADA
+    RECHAZADA
+    CANCELADA
+  }
+
+  enum EstadoPagoSimulado {
+    APROBADO
+    RECHAZADO
+  }
+
+  enum ModoPagoSimulado {
+    APPROVE
+    REJECT_FUNDS
+    REJECT_PROVIDER
+    REJECT_APPLICATION
+  }
+}
+
+Usuario "1" -down- "0..*" SolicitudPropietario : solicitante
+Usuario "0..1" -down- "0..*" SolicitudPropietario : revisor
+Usuario "1" -[norank]- "0..*" LocalEvento : propietario
+LocalEvento "1" *-down- "0..*" BloqueDisponibilidad : bloqueos
+Usuario "1" -[norank]- "0..*" Reserva : cliente
+LocalEvento "1" -[norank]- "0..*" Reserva : local
+Reserva "1" *-right- "0..1" PagoSimulado : pago
+Usuario "1" -[norank]- "0..*" Favorito : cliente
+LocalEvento "1" -down- "0..*" Favorito : local
+Reserva "1" -down- "0..1" Resena : reserva
+Usuario "1" -[norank]- "0..*" Resena : cliente
+LocalEvento "1" -[norank]- "0..*" Resena : local
+
+Usuario ..down.> Rol
+Usuario ..down.> EstadoUsuario
+Usuario ..down.> EstadoVerificacionPropietario
+SolicitudPropietario ..down.> EstadoSolicitudPropietario
+Reserva ..down.> EstadoReserva
+PagoSimulado ..down.> EstadoPagoSimulado
+PagoSimulado ..down.> ModoPagoSimulado
+
+LocalEvento -[hidden]r- Usuario
+LocalEvento -[hidden]r- Reserva
+Locales -[hidden]d- Interaccion
+Interaccion -[hidden]d- Enumeraciones
+
+@enduml

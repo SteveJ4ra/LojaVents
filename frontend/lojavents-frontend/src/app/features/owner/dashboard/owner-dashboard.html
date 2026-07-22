@@ -1,0 +1,16 @@
+<div class="portal-heading"><div><span class="eyebrow">Propietario</span><h1>Resumen</h1></div><a class="btn btn-primary" routerLink="/propietario/locales/nuevo">Registrar local</a></div>
+<div class="stats">
+  <article><span>Locales registrados</span><strong>{{ ownerVenues().length }}</strong></article>
+  <article><span>Reservas recibidas</span><strong>{{ ownerBookings().length }}</strong></article>
+  <article><span>Ingresos simulados</span><strong>{{ totalIncome() | currency:'USD' }}</strong></article>
+</div>
+<section class="panel">
+  <div class="panel-heading"><h2>Reservas recientes</h2></div>
+  @if (ownerBookings().length) {
+    <div class="table-wrap"><table><thead><tr><th>Local</th><th>Fecha</th><th>Asistentes</th><th>Total</th><th>Estado</th></tr></thead><tbody>
+      @for (booking of ownerBookings(); track booking.id) {
+        <tr><td>{{ venueName(booking.venueId) }}</td><td>{{ booking.date }} · {{ booking.startTime }}</td><td>{{ booking.attendees }}</td><td>{{ booking.total | currency:'USD' }}</td><td><app-status-badge [status]="booking.status" /></td></tr>
+      }
+    </tbody></table></div>
+  } @else { <p class="empty">Todavía no existen reservas para tus locales.</p> }
+</section>

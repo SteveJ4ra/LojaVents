@@ -1,0 +1,13 @@
+<div class="portal container">
+  <aside>
+    <h2>{{ title() }}</h2>
+    @for (link of links(); track link.route) {
+      <a [routerLink]="link.route" routerLinkActive="active" [routerLinkActiveOptions]="{exact: link.route.endsWith('/propietario') || link.route.endsWith('/admin')}">
+        <span>{{ link.icon }}</span>{{ link.label }}
+      </a>
+    }
+  </aside>
+  <main>
+    <router-outlet />
+  </main>
+</div>

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 600" role="img" aria-labelledby="t d">
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#334e68"/><stop offset="1" stop-color="#b7c9d6"/></linearGradient></defs>
+<rect width="960" height="600" fill="url(#g)"/>
+
+          <path d="M100 130 H860 V495 H100Z" fill="#fff" fill-opacity=".92"/>
+          <rect x="180" y="190" width="600" height="190" rx="12" fill="#253449"/>
+          <rect x="330" y="220" width="300" height="120" rx="8" fill="#e7f4ef"/>
+          <path d="M140 455 Q480 335 820 455" fill="#c55d4a"/>
+          <g fill="#8e3b32"><circle cx="220" cy="435" r="24"/><circle cx="320" cy="410" r="24"/><circle cx="420" cy="390" r="24"/><circle cx="540" cy="390" r="24"/><circle cx="640" cy="410" r="24"/><circle cx="740" cy="435" r="24"/></g>
+        
+<rect x="38" y="36" width="430" height="84" rx="18" fill="#fff" fill-opacity=".88"/>
+<text id="t" x="66" y="75" font-family="Arial,sans-serif" font-size="27" font-weight="700" fill="#1b2b23">Auditorio Loja</text>
+<text id="d" x="66" y="101" font-family="Arial,sans-serif" font-size="16" fill="#52625a">Centro · Loja</text>
+</svg>

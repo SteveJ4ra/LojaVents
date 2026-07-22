@@ -1,0 +1,12 @@
+<section class="page-header"><div class="container"><span class="eyebrow">Colección personal</span><h1>Mis favoritos</h1><p>Los espacios que guardaste para comparar después.</p></div></section>
+<section class="container content">
+  @if (venues().length) {
+    <div class="card-grid">
+      @for (venue of venues(); track venue.id) {
+        <app-venue-card [venue]="venue" [favorite]="true" (favoriteChange)="toggle($event)" />
+      }
+    </div>
+  } @else {
+    <app-empty-state icon="♡" title="Aún no tienes favoritos" message="Guarda locales desde el catálogo para encontrarlos fácilmente." link="/locales" linkLabel="Explorar locales" />
+  }
+</section>

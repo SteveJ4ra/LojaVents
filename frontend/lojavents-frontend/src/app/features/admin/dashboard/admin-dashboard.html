@@ -1,0 +1,12 @@
+<div class="portal-heading"><span class="eyebrow">Administración</span><h1>Resumen general</h1><p>Indicadores de la aplicación de demostración.</p></div>
+<div class="stats">
+  <article><span>Usuarios</span><strong>{{ users().length }}</strong></article>
+  <article><span>Locales</span><strong>{{ venues.venues().length }}</strong></article>
+  <article><span>Reservas</span><strong>{{ bookings.bookings().length }}</strong></article>
+  <article><span>Solicitudes pendientes</span><strong>{{ pending().length }}</strong></article>
+</div>
+<section class="panel">
+  <h2>Estado del sistema</h2>
+  <div class="system"><div><span>Frontend Angular</span><app-status-badge status="ACTIVO" /></div><div><span>API REST</span><app-status-badge status="SIMULADA" /></div><div><span>Pasarela de pago</span><app-status-badge status="SANDBOX" /></div></div>
+  <p>El prototipo usa almacenamiento local. La sustitución por API se realiza en los servicios de <code>core/services</code>.</p>
+</section>

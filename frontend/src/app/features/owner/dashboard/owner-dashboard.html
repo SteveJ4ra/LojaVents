@@ -1,0 +1,75 @@
+<div class="portal-heading">
+  <div><span class="eyebrow">Propietario</span><h1>Resumen de actividad</h1><p>Métricas calculadas únicamente con tus locales y reservas.</p></div>
+  <div class="heading-actions"><button class="btn btn-secondary" type="button" (click)="refresh()" [disabled]="loading()">{{ loading() ? 'Actualizando…' : 'Actualizar' }}</button><a class="btn btn-primary" routerLink="/propietario/locales/nuevo">Registrar local</a></div>
+</div>
+
+@if (dashboard(); as data) {
+  <div class="stats">
+    <article><span>Locales registrados</span><strong>{{ data.totalVenues }}</strong><small>{{ data.activeVenues }} activos</small></article>
+    <article><span>Reservas recibidas</span><strong>{{ data.totalReservations }}</strong><small>{{ data.completedReservations }} aprobadas</small></article>
+    <article><span>Próximos eventos</span><strong>{{ data.upcomingReservations }}</strong><small>reservas confirmadas</small></article>
+    <article><span>Ingresos</span><strong>{{ data.approvedRevenue | currency:'USD' }}</strong><small>pagos aprobados</small></article>
+  </div>
+
+  <div class="dashboard-grid">
+    <section class="panel">
+      <div class="panel-heading"><div><span class="eyebrow">Últimos seis meses</span><h2>Ingresos por mes</h2></div></div>
+      <div class="revenue-chart">
+        @for (metric of data.monthlyMetrics; track metric.key) {
+          <article>
+            <div class="bar-shell"><span [style.height.%]="revenueBar(metric.revenue)"></span></div>
+            <strong>{{ metric.revenue | currency:'USD':'symbol':'1.0-0' }}</strong>
+            <small>{{ metric.label }}</small>
+            <em>{{ metric.reservations }} reservas</em>
+          </article>
+        }
+      </div>
+    </section>
+
+    <section class="panel upcoming-panel">
+      <div class="panel-heading"><h2>Próximas reservas</h2><a routerLink="/propietario/reservas">Ver todas</a></div>
+      @if (data.upcomingReservationItems.length) {
+        <div class="upcoming-list">
+          @for (booking of data.upcomingReservationItems; track booking.id) {
+            <article>
+              <div class="date-box"><strong>{{ booking.date | date:'dd' }}</strong><span>{{ booking.date | date:'MMM' }}</span></div>
+              <div><strong>{{ booking.venueName }}</strong><p>{{ booking.startTime }} · {{ booking.durationHours }} h · {{ booking.attendees }} asistentes</p><small>{{ booking.userName }}</small></div>
+            </article>
+          }
+        </div>
+      } @else {
+        <p class="empty">No tienes eventos confirmados próximos.</p>
+      }
+    </section>
+  </div>
+
+  <section class="panel performance-panel">
+    <div class="panel-heading"><h2>Rendimiento por local</h2><a routerLink="/propietario/locales">Gestionar locales</a></div>
+    @if (data.venueMetrics.length) {
+      <div class="table-wrap"><table><thead><tr><th>Local</th><th>Reservas</th><th>Aprobadas</th><th>Rechazadas</th><th>Ingresos</th><th>Valoración</th></tr></thead><tbody>
+        @for (venue of data.venueMetrics; track venue.venueId) {
+          <tr><td>{{ venue.venueName }}</td><td>{{ venue.reservations }}</td><td>{{ venue.completedReservations }}</td><td>{{ venue.rejectedReservations }}</td><td>{{ venue.revenue | currency:'USD' }}</td><td>★ {{ venue.rating }}</td></tr>
+        }
+      </tbody></table></div>
+    } @else {
+      <p class="empty">Aún no existen reservas para calcular el rendimiento de tus locales.</p>
+    }
+  </section>
+
+  <section class="panel">
+    <div class="panel-heading"><h2>Reservas recientes</h2><a routerLink="/propietario/reservas">Ver todas</a></div>
+    @if (data.recentReservations.length) {
+      <div class="table-wrap"><table><thead><tr><th>Local</th><th>Cliente</th><th>Fecha</th><th>Asistentes</th><th>Total</th><th>Estado</th></tr></thead><tbody>
+        @for (booking of data.recentReservations; track booking.id) {
+          <tr><td>{{ booking.venueName }}</td><td>{{ booking.userName }}</td><td>{{ booking.date }} · {{ booking.startTime }}</td><td>{{ booking.attendees }}</td><td>{{ booking.total | currency:'USD' }}</td><td><app-status-badge [status]="booking.status" /></td></tr>
+        }
+      </tbody></table></div>
+    } @else {
+      <p class="empty">Todavía no existen reservas para tus locales.</p>
+    }
+  </section>
+} @else if (loading()) {
+  <section class="panel loading-panel">Calculando las estadísticas de tus locales…</section>
+} @else {
+  <section class="panel loading-panel"><p>No fue posible cargar el panel.</p><button class="btn btn-primary" type="button" (click)="refresh()">Reintentar</button></section>
+}

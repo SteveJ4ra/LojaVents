@@ -1,0 +1,39 @@
+<section class="page-header"><div class="container"><span class="eyebrow">Área del cliente</span><h1>Mis reservas</h1><p>Consulta reservas próximas y el historial de eventos.</p></div></section>
+<section class="container content">
+  @if (bookings().length) {
+    <div class="booking-list">
+      @for (booking of bookings(); track booking.id) {
+        <article>
+          <img [src]="venues.getById(booking.venueId)?.images?.[0]" [alt]="venueName(booking.venueId)">
+          <div class="main">
+            <div class="row"><h2>{{ venueName(booking.venueId) }}</h2><app-status-badge [status]="booking.status" /></div>
+            <p>{{ booking.date | date:'longDate' }} · {{ booking.startTime }} · {{ booking.durationHours }} horas</p>
+            <p>{{ booking.attendees }} asistentes · Referencia: {{ booking.paymentReference }}</p>
+          </div>
+          <div class="amount">
+            <strong>{{ booking.total | currency:'USD' }}</strong>
+            @if (canReview(booking)) { <button class="btn btn-secondary" type="button" (click)="selected.set(booking)">Dejar reseña</button> }
+            @if (booking.reviewSubmitted) { <span class="reviewed">Reseña enviada</span> }
+          </div>
+        </article>
+      }
+    </div>
+  } @else {
+    <app-empty-state icon="▣" title="No tienes reservas" message="Cuando completes una reserva aparecerá en esta sección." link="/locales" linkLabel="Buscar un local" />
+  }
+</section>
+
+@if (selected()) {
+  <div class="modal-backdrop" (click)="selected.set(null)">
+    <section class="modal" (click)="$event.stopPropagation()">
+      <button class="close" type="button" (click)="selected.set(null)">×</button>
+      <h2>Califica tu experiencia</h2>
+      <p>{{ venueName(selected()!.venueId) }}</p>
+      <form [formGroup]="form" (ngSubmit)="submitReview()">
+        <label><span>Calificación</span><select formControlName="rating"><option [value]="5">5 estrellas</option><option [value]="4">4 estrellas</option><option [value]="3">3 estrellas</option><option [value]="2">2 estrellas</option><option [value]="1">1 estrella</option></select></label>
+        <label><span>Reseña</span><textarea rows="5" formControlName="comment" placeholder="Cuenta cómo fue tu experiencia"></textarea></label>
+        <button class="btn btn-primary full" type="submit">Publicar reseña</button>
+      </form>
+    </section>
+  </div>
+}

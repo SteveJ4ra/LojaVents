@@ -1,0 +1,24 @@
+# Variables locales
+.env
+
+# Certificados y claves privadas
+certs/*.crt
+certs/*.key
+certs/*.csr
+certs/*.srl
+certs/*.ext
+
+# Java
+backend/target/
+
+# Angular
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+
+# Editores y sistema
+.vscode/
+.idea/
+*.iml
+.DS_Store
+Thumbs.db

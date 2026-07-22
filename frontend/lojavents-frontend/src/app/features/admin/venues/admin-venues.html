@@ -1,0 +1,8 @@
+<div class="portal-heading"><span class="eyebrow">Contenido</span><h1>Gestión de locales</h1><p>Supervisa todos los espacios registrados.</p></div>
+<section class="panel">
+  <div class="table-wrap"><table><thead><tr><th>Local</th><th>Sector</th><th>Capacidad</th><th>Precio</th><th>Estado</th><th>Acción</th></tr></thead><tbody>
+    @for (venue of venues.venues(); track venue.id) {
+      <tr><td><div class="venue"><img [src]="venue.images[0]" [alt]="venue.name"><strong>{{ venue.name }}</strong></div></td><td>{{ venue.neighborhood }}</td><td>{{ venue.capacity }}</td><td>{{ venue.pricePerHour | currency:'USD' }}</td><td><app-status-badge [status]="venue.active ? 'ACTIVO' : 'INACTIVO'" /></td><td><button class="btn btn-secondary" type="button" (click)="toggle(venue.id)">{{ venue.active ? 'Desactivar' : 'Activar' }}</button></td></tr>
+    }
+  </tbody></table></div>
+</section>

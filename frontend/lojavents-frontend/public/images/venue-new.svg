@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 600" role="img" aria-labelledby="t d">
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#648b78"/><stop offset="1" stop-color="#dec390"/></linearGradient></defs>
+<rect width="960" height="600" fill="url(#g)"/>
+
+          <rect x="115" y="155" width="730" height="335" rx="22" fill="#fff" fill-opacity=".9"/>
+          <path d="M80 185 L480 70 L880 185Z" fill="#f0d7b1"/>
+          <rect x="175" y="235" width="120" height="190" rx="6" fill="#bd8d61"/>
+          <rect x="670" y="235" width="120" height="190" rx="6" fill="#bd8d61"/>
+          <path d="M360 490 V290 Q480 190 600 290 V490" fill="#e7c79e"/>
+          <circle cx="480" cy="320" r="45" fill="#ffffff" fill-opacity=".65"/>
+          <path d="M180 520 H780" stroke="#fff" stroke-width="16" stroke-linecap="round" opacity=".45"/>
+        
+<rect x="38" y="36" width="430" height="84" rx="18" fill="#fff" fill-opacity=".88"/>
+<text id="t" x="66" y="75" font-family="Arial,sans-serif" font-size="27" font-weight="700" fill="#1b2b23">Nuevo espacio</text>
+<text id="d" x="66" y="101" font-family="Arial,sans-serif" font-size="16" fill="#52625a">Imagen de demostración</text>
+</svg>

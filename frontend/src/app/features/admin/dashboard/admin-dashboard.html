@@ -1,0 +1,100 @@
+<div class="portal-heading">
+  <div>
+    <span class="eyebrow">Administración</span>
+    <h1>Resumen general</h1>
+    <p>Indicadores consolidados desde PostgreSQL y actividad reciente desde MongoDB.</p>
+  </div>
+  <button class="btn btn-secondary" type="button" (click)="refresh()" [disabled]="loading()">
+    {{ loading() ? 'Actualizando…' : 'Actualizar' }}
+  </button>
+</div>
+
+@if (dashboard(); as data) {
+  <div class="stats stats-primary">
+    <article><span>Usuarios registrados</span><strong>{{ data.totalUsers }}</strong><small>{{ data.activeUsers }} activos</small></article>
+    <article><span>Locales registrados</span><strong>{{ data.totalVenues }}</strong><small>{{ data.activeVenues }} publicados</small></article>
+    <article><span>Reservas totales</span><strong>{{ data.totalReservations }}</strong><small>{{ data.completedReservations }} aprobadas</small></article>
+    <article><span>Volumen de pagos</span><strong>{{ data.approvedRevenue | currency:'USD' }}</strong><small>{{ data.serviceFeeRevenue | currency:'USD' }} en tarifas</small></article>
+  </div>
+
+  <div class="summary-grid">
+    <section class="panel">
+      <div class="panel-heading">
+        <div><span class="eyebrow">Últimos seis meses</span><h2>Reservas e ingresos</h2></div>
+      </div>
+      <div class="chart-grid">
+        @for (metric of data.monthlyMetrics; track metric.key) {
+          <article class="month-card">
+            <div class="month-title"><strong>{{ metric.label }}</strong><span>{{ metric.reservations }} reservas</span></div>
+            <div class="bar-track" title="Reservas"><span [style.width.%]="reservationBar(metric.reservations)"></span></div>
+            <div class="bar-track revenue" title="Ingresos"><span [style.width.%]="revenueBar(metric.revenue)"></span></div>
+            <small>{{ metric.revenue | currency:'USD' }}</small>
+          </article>
+        }
+      </div>
+      <div class="legend"><span><i class="reservations"></i>Reservas</span><span><i class="revenue"></i>Ingresos</span></div>
+    </section>
+
+    <section class="panel account-panel">
+      <div class="panel-heading"><h2>Estado de cuentas</h2><a routerLink="/admin/usuarios">Gestionar</a></div>
+      <div class="mini-stats">
+        <div><span>Clientes</span><strong>{{ data.clientUsers }}</strong></div>
+        <div><span>Propietarios</span><strong>{{ data.ownerUsers }}</strong></div>
+        <div><span>Suspendidos</span><strong>{{ data.suspendedUsers }}</strong></div>
+        <div><span>Inactivos</span><strong>{{ data.inactiveUsers }}</strong></div>
+      </div>
+      <div class="quick-links">
+        <a routerLink="/admin/verificaciones"><span>Solicitudes pendientes</span><strong>{{ data.pendingOwnerRequests }}</strong></a>
+        <a routerLink="/admin/locales"><span>Locales inactivos</span><strong>{{ data.inactiveVenues }}</strong></a>
+        <div><span>Reseñas publicadas</span><strong>{{ data.totalReviews }}</strong></div>
+        <div><span>Reservas rechazadas</span><strong>{{ data.rejectedReservations }}</strong></div>
+      </div>
+    </section>
+  </div>
+
+  <div class="summary-grid bottom-grid">
+    <section class="panel">
+      <div class="panel-heading"><h2>Locales con mayor actividad</h2><a routerLink="/admin/locales">Ver locales</a></div>
+      @if (data.topVenues.length) {
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Local</th><th>Reservas</th><th>Aprobadas</th><th>Ingresos</th><th>Valoración</th></tr></thead>
+            <tbody>
+              @for (venue of data.topVenues; track venue.venueId) {
+                <tr>
+                  <td>{{ venue.venueName }}</td>
+                  <td>{{ venue.reservations }}</td>
+                  <td>{{ venue.completedReservations }}</td>
+                  <td>{{ venue.revenue | currency:'USD' }}</td>
+                  <td>★ {{ venue.rating }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <p class="empty">Todavía no existen reservas para calcular el rendimiento de los locales.</p>
+      }
+    </section>
+
+    <section class="panel activity-panel">
+      <div class="panel-heading"><h2>Actividad reciente</h2><app-status-badge status="ACTIVO" /></div>
+      @if (data.recentActivity.length) {
+        <div class="activity-list">
+          @for (activity of data.recentActivity; track activity.id) {
+            <article>
+              <span class="activity-dot"></span>
+              <div><strong>{{ activityLabel(activity.type) }}</strong><p>{{ activity.message }}</p><small>{{ activity.createdAt | date:'medium' }}</small></div>
+            </article>
+          }
+        </div>
+      } @else {
+        <p class="empty">MongoDB todavía no registra actividad reciente.</p>
+      }
+    </section>
+  </div>
+} @else if (loading()) {
+  <section class="panel loading-panel">Calculando indicadores del sistema…</section>
+} @else {
+  <section class="panel loading-panel"><p>No fue posible cargar el panel.</p><button class="btn btn-primary" type="button" (click)="refresh()">Reintentar</button></section>
+}
