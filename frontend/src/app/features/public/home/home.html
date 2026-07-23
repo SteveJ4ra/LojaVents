@@ -1,3 +1,37 @@
-<section class="hero"><div class="container hero-grid"><div><span class="eyebrow">Espacios para eventos en Loja</span><h1>El lugar ideal para cada momento importante</h1><p>Compara salones, jardines, auditorios y espacios creativos. Revisa disponibilidad y reserva en minutos.</p><div class="hero-actions"><a class="btn btn-primary" routerLink="/locales">Explorar locales</a><a class="btn btn-secondary" routerLink="/convertirme-en-propietario">Publicar mi local</a></div></div><div class="hero-art"><img src="/images/hero.svg" alt="Celebracion en un local de Loja"></div></div><form class="search-panel container" [formGroup]="searchForm" (ngSubmit)="search()"><label><span>Tipo de evento</span><select formControlName="eventType"><option value="">Todos los eventos</option>@for (type of venues.eventTypes(); track type) { <option [value]="type">{{ type }}</option> }</select></label><label><span>Fecha</span><input type="date" formControlName="date"></label><label><span>Asistentes</span><input type="number" min="1" formControlName="attendees"></label><button class="btn btn-primary" type="submit">Buscar espacios</button></form></section>
-<section class="section container"><div class="section-heading"><div><span class="eyebrow">Recomendados</span><h2>Locales destacados</h2></div><a routerLink="/locales">Ver todos</a></div><div class="card-grid">@for (venue of venues.featuredVenues(); track venue.id) { <app-venue-card [venue]="venue" [favorite]="favorites.has(venue.id)" (favoriteChange)="toggleFavorite($event)" /> }</div></section>
-<section class="section muted-section"><div class="container steps"><div class="section-heading centered"><div><span class="eyebrow">Cómo funciona</span><h2>Reserva en cuatro pasos</h2></div></div><article><span>1</span><h3>Busca</h3><p>Filtra por evento, fecha, capacidad y precio.</p></article><article><span>2</span><h3>Compara</h3><p>Consulta fotografías, servicios, normas y reseñas.</p></article><article><span>3</span><h3>Reserva</h3><p>Selecciona horario, duración y número de asistentes.</p></article><article><span>4</span><h3>Paga</h3><p>Completa tu reserva de forma segura.</p></article></div></section>
+<section class="hero">
+  <div class="container hero-grid">
+    <div>
+      <span class="eyebrow">Espacios para eventos en Loja</span>
+      <h1>El lugar ideal para cada momento importante</h1>
+      <p>Compara salones, jardines, auditorios y espacios creativos. Revisa disponibilidad y reserva en minutos.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" routerLink="/locales">Explorar locales</a>
+        @if (!auth.hasRole('ADMINISTRADOR')) { <a class="btn btn-secondary" routerLink="/convertirme-en-propietario">Publicar mi local</a> }
+      </div>
+    </div>
+    <div class="hero-art">
+      <img src="/images/home/hero-event-space.webp" alt="Espacio elegante preparado para una celebración" fetchpriority="high">
+    </div>
+  </div>
+  <form class="search-panel container" [formGroup]="searchForm" (ngSubmit)="search()">
+    <label><span>Tipo de evento</span><select formControlName="eventType"><option value="">Todos los eventos</option>@for (type of venues.eventTypes(); track type) { <option [value]="type">{{ type }}</option> }</select></label>
+    <label><span class="label-with-help">Fecha <button class="help-icon" type="button" title="Día previsto para el evento. La disponibilidad exacta del horario se comprueba antes de reservar." aria-label="Ayuda sobre el filtro de fecha"><lucide-icon [img]="HelpIcon" [size]="16" /></button></span><input type="date" [min]="minDate" formControlName="date"></label>
+    <label><span class="label-with-help">Asistentes <button class="help-icon" type="button" title="Cantidad estimada de invitados. Solo se mostrarán locales con capacidad suficiente." aria-label="Ayuda sobre el filtro de asistentes"><lucide-icon [img]="HelpIcon" [size]="16" /></button></span><input type="number" min="1" step="1" formControlName="attendees"></label>
+    <button class="btn btn-primary" type="submit">Buscar espacios</button>
+  </form>
+</section>
+
+<section class="section muted-section steps-section">
+  <div class="container steps">
+    <div class="section-heading centered"><div><span class="eyebrow">Cómo funciona</span><h2>Reserva en cuatro pasos</h2></div></div>
+    <article><span>1</span><h3>Busca</h3><p>Filtra por evento, fecha, capacidad y precio.</p></article>
+    <article><span>2</span><h3>Compara</h3><p>Consulta fotografías, servicios, normas y reseñas.</p></article>
+    <article><span>3</span><h3>Reserva</h3><p>Selecciona horario, duración y número de asistentes.</p></article>
+    <article><span>4</span><h3>Paga</h3><p>Completa tu reserva de forma segura.</p></article>
+  </div>
+</section>
+
+<section class="section container">
+  <div class="section-heading"><div><span class="eyebrow">Recomendados</span><h2>Locales destacados</h2></div><a routerLink="/locales">Ver todos</a></div>
+  <div class="card-grid">@for (venue of venues.featuredVenues(); track venue.id) { <app-venue-card [venue]="venue" [favorite]="favorites.has(venue.id)" [showFavorite]="!auth.hasRole('ADMINISTRADOR')" (favoriteChange)="toggleFavorite($event)" /> }</div>
+</section>

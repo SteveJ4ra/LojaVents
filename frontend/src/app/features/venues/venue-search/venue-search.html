@@ -2,14 +2,14 @@
 <div class="container search-layout"><aside><form [formGroup]="form">
   <label for="search-text"><span>Buscar</span><input id="search-text" type="search" placeholder="Nombre o sector" formControlName="text" autocomplete="off"></label>
   <label for="search-event-type"><span>Tipo de evento</span><select id="search-event-type" formControlName="eventType"><option value="">Todos</option>@for (type of venueService.eventTypes(); track type) { <option [value]="type">{{ type }}</option> }</select></label>
-  <label for="search-date"><span>Fecha</span><input id="search-date" type="date" formControlName="date" autocomplete="off"></label>
-  <label for="search-attendees"><span>Asistentes</span><input id="search-attendees" type="number" min="1" formControlName="attendees"></label>
+  <label for="search-date"><span class="label-with-help">Fecha <button class="help-icon" type="button" title="Día previsto para el evento. La disponibilidad exacta del horario se comprueba antes de reservar." aria-label="Ayuda sobre el filtro de fecha"><lucide-icon [img]="HelpIcon" [size]="16" /></button></span><input id="search-date" type="date" [min]="minDate" formControlName="date" autocomplete="off"></label>
+  <label for="search-attendees"><span class="label-with-help">Asistentes <button class="help-icon" type="button" title="Cantidad estimada de invitados. Solo se mostrarán locales con capacidad suficiente." aria-label="Ayuda sobre el filtro de asistentes"><lucide-icon [img]="HelpIcon" [size]="16" /></button></span><input id="search-attendees" type="number" min="1" step="1" formControlName="attendees"></label>
   <label for="search-price"><span>Precio máximo por hora: ${{ form.controls.maxPrice.value }}</span><input id="search-price" type="range" min="20" max="150" step="5" formControlName="maxPrice" aria-label="Precio máximo por hora"></label>
   <button type="button" class="btn btn-secondary full" (click)="reset()">Limpiar filtros</button>
 </form></aside>
 <main><div class="results-heading"><h2>{{ results().length }} espacios encontrados</h2></div>
   @if (venueService.loading()) { <app-empty-state icon="..." title="Cargando locales" message="Estamos actualizando el catálogo disponible." /> }
-  @else if (results().length) { <div class="card-grid">@for (venue of results(); track venue.id) { <app-venue-card [venue]="venue" [favorite]="favorites.has(venue.id)" (favoriteChange)="toggleFavorite($event)" /> }</div> }
+  @else if (results().length) { <div class="card-grid">@for (venue of results(); track venue.id) { <app-venue-card [venue]="venue" [favorite]="favorites.has(venue.id)" [showFavorite]="!auth.hasRole('ADMINISTRADOR')" (favoriteChange)="toggleFavorite($event)" /> }</div> }
   @else { <app-empty-state icon="?" title="No encontramos locales" message="Cambia la fecha o amplía los filtros de búsqueda." /> }
   @if (!venueService.loading() && venueService.loadError()) { <button type="button" class="btn btn-secondary" (click)="reload()">Volver a cargar</button> }
 </main></div>

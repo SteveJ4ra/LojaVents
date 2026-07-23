@@ -1,6 +1,7 @@
 package ec.edu.unl.lojavents.user.api.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public record UpdateProfileRequest(
@@ -9,7 +10,7 @@ public record UpdateProfileRequest(
         String fullName,
 
         @NotBlank(message = "El teléfono es obligatorio.")
-        @Size(min = 7, max = 30, message = "El teléfono debe tener entre 7 y 30 caracteres.")
+        @Pattern(regexp = "^[0-9]{9,10}$", message = "El teléfono debe contener 9 o 10 dígitos.")
         String phone
 ) {
 }

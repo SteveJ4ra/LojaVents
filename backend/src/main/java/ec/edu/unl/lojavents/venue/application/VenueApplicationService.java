@@ -16,10 +16,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.*;
 
 @Service
 public class VenueApplicationService {
+
+    private static final ZoneId LOJA_ZONE = ZoneId.of("America/Guayaquil");
 
     private final LocalEventoRepository localRepository;
     private final UsuarioRepository usuarioRepository;
@@ -218,6 +221,13 @@ public class VenueApplicationService {
     }
 
     private void validateBlock(LocalEvento local, AvailabilityBlockRequest request) {
+        if (request.date().isBefore(LocalDate.now(LOJA_ZONE))) {
+            throw new ApiException(
+                    HttpStatus.BAD_REQUEST,
+                    "BLOCK_DATE_IN_PAST",
+                    "No se puede bloquear una fecha pasada."
+            );
+        }
         if (!request.startTime().isBefore(request.endTime())) {
             throw new ApiException(
                     HttpStatus.BAD_REQUEST,

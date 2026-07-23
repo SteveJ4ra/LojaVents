@@ -3,6 +3,7 @@ spring:
     name: lojavents-backend
 
   jackson:
+    time-zone: America/Guayaquil
     deserialization:
       accept-float-as-int: false
 

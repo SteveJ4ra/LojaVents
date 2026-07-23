@@ -4,6 +4,7 @@
     @for (link of links(); track link.route) {
       <a [routerLink]="link.route" routerLinkActive="active" [routerLinkActiveOptions]="{exact: link.route.endsWith('/propietario') || link.route.endsWith('/admin')}">
         <span>{{ link.icon }}</span>{{ link.label }}
+        @if (link.attention?.()) { <i class="attention-dot" title="Hay elementos pendientes" aria-label="Hay elementos pendientes"></i> }
       </a>
     }
   </aside>

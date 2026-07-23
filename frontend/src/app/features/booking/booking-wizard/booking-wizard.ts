@@ -1,7 +1,7 @@
 import { CurrencyPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, signal } from '@angular/core';
-import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
@@ -11,6 +11,8 @@ import { NotificationService } from '../../../core/services/notification.service
 import { PaymentService } from '../../../core/services/payment.service';
 import { VenueService } from '../../../core/services/venue.service';
 import { Booking, PaymentSimulationMode } from '../../../shared/models/booking.model';
+import { ecuadorToday } from '../../../shared/utils/date-time';
+import { integerValidator as buildIntegerValidator, trimmedRequiredValidator } from '../../../shared/validators/form.validators';
 
 @Component({
   selector: 'app-booking-wizard',
@@ -28,20 +30,22 @@ export class BookingWizard {
   readonly result = signal<Booking | null>(null);
   readonly rejectedResult = signal<Booking | null>(null);
   readonly error = signal<string | null>(null);
-  readonly minDate = new Date().toISOString().slice(0, 10);
+  readonly availabilityError = signal<string | null>(null);
+  readonly availabilityErrorField = signal<'date' | 'time'>('time');
+  readonly minDate = ecuadorToday();
   private readonly draftId = signal<string | null>(null);
 
   readonly eventForm = this.fb.nonNullable.group({
     date: ['', Validators.required],
     startTime: ['16:00', Validators.required],
     durationHours: [3, [Validators.required, Validators.min(1), Validators.max(12), integerValidator()]],
-    attendees: [20, [Validators.required, Validators.min(1)]]
+    attendees: [20, [Validators.required, Validators.min(1), integerValidator()]]
   });
 
   readonly billingForm = this.fb.nonNullable.group({
-    city: ['Loja', Validators.required],
-    neighborhood: ['', Validators.required],
-    street: ['', Validators.required]
+    city: ['Loja', [trimmedRequiredValidator(), Validators.maxLength(120)]],
+    neighborhood: ['', [trimmedRequiredValidator(), Validators.maxLength(120)]],
+    street: ['', [trimmedRequiredValidator(), Validators.maxLength(300)]]
   });
 
   readonly rulesForm = this.fb.nonNullable.group({
@@ -70,7 +74,14 @@ export class BookingWizard {
     private readonly payments: PaymentService,
     private readonly notifications: NotificationService
   ) {
-    this.venues.loadPublicVenue(this.venueId).subscribe({ error: () => undefined });
+    this.venues.loadPublicVenue(this.venueId).subscribe({
+      next: venue => {
+        this.eventForm.controls.attendees.addValidators(Validators.max(venue.capacity));
+        this.eventForm.controls.attendees.updateValueAndValidity();
+      },
+      error: () => undefined
+    });
+    this.eventForm.valueChanges.subscribe(() => this.availabilityError.set(null));
   }
 
   nextFromEvent(): void {
@@ -79,25 +90,21 @@ export class BookingWizard {
       this.eventForm.markAllAsTouched();
       return;
     }
-    if (this.eventForm.controls.attendees.value > venue.capacity) {
-      this.notifications.show(`La capacidad máxima es de ${venue.capacity} personas.`, 'error');
-      return;
-    }
-
     const { date, startTime, durationHours } = this.eventForm.getRawValue();
+    this.availabilityError.set(null);
     this.checkingAvailability.set(true);
     this.bookings.checkAvailability(venue.id, date, startTime, durationHours).subscribe({
       next: result => {
         this.checkingAvailability.set(false);
         if (!result.available) {
-          this.notifications.show(result.message, 'error');
+          this.setAvailabilityError(result.message);
           return;
         }
         this.step.set(2);
       },
       error: (error: HttpErrorResponse) => {
         this.checkingAvailability.set(false);
-        this.notifications.show(this.readError(error), 'error');
+        this.setAvailabilityError(this.readError(error));
       }
     });
   }
@@ -171,9 +178,11 @@ export class BookingWizard {
     }
     return 'No fue posible completar la solicitud.';
   }
+
+  private setAvailabilityError(message: string): void {
+    this.availabilityErrorField.set(/fecha|pasad|local no está disponible/i.test(message) ? 'date' : 'time');
+    this.availabilityError.set(message);
+  }
 }
 
-export function integerValidator(): ValidatorFn {
-  return (control: AbstractControl): ValidationErrors | null =>
-    Number.isInteger(Number(control.value)) ? null : { integer: true };
-}
+export const integerValidator = buildIntegerValidator;

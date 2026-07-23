@@ -9,9 +9,12 @@
       </div>
       <div class="actions">
         <button class="btn btn-secondary" type="button" (click)="share()">Compartir</button>
-        <button class="btn btn-secondary" type="button" (click)="favorite()">
-          {{ favorites.has(venue.id) ? '♥ Guardado' : '♡ Guardar' }}
-        </button>
+        @if (venue.reviewCount) { <a class="btn btn-secondary" href="#resenas">Ver reseñas ({{ venue.reviewCount }})</a> }
+        @if (!auth.hasRole('ADMINISTRADOR')) {
+          <button class="btn btn-secondary" type="button" (click)="favorite()">
+            {{ favorites.has(venue.id) ? '♥ Guardado' : '♡ Guardar' }}
+          </button>
+        }
       </div>
     </div>
 
@@ -50,7 +53,7 @@
           <p>{{ venue.cancellationPolicy }}</p>
         </section>
 
-        <section>
+        <section id="resenas">
           <h2>Reseñas</h2>
           @if (reviews().length) {
             <div class="reviews">
@@ -74,7 +77,9 @@
           <li>Confirmación inmediata después del pago.</li>
           <li>La disponibilidad final la valida el servidor.</li>
         </ul>
-        <a class="btn btn-primary full" [routerLink]="['/reservar', venue.id]">Reservar ahora</a>
+        @if (!auth.hasRole('ADMINISTRADOR')) {
+          <a class="btn btn-primary full" [routerLink]="['/reservar', venue.id]">Reservar ahora</a>
+        }
       </aside>
     </div>
   </section>

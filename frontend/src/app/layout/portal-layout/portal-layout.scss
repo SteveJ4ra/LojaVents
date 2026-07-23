@@ -3,6 +3,8 @@ aside { background:var(--surface); border:1px solid var(--border); border-radius
 aside h2 { font-size:1.1rem; margin:0 0 16px; }
 aside a { display:flex; gap:10px; align-items:center; text-decoration:none; color:var(--text-muted); padding:11px 12px; border-radius:10px; font-weight:650; }
 aside a:hover, aside a.active { color:var(--primary); background:var(--primary-soft); }
+.attention-dot { margin-left:auto; width:9px; height:9px; border-radius:50%; background:#d92d20; box-shadow:0 0 0 3px rgba(217,45,32,.14); animation:attention-pulse 2.2s ease-in-out infinite; }
+@keyframes attention-pulse { 50% { opacity:.38; transform:scale(.82); } }
 main { min-width:0; }
 @media(max-width:800px){
   .portal { grid-template-columns:1fr; }

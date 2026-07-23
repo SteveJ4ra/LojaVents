@@ -2,26 +2,34 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { Eye, EyeOff, LucideAngularModule } from 'lucide-angular';
 import { finalize } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
+import { DigitsOnlyDirective } from '../../../shared/directives/digits-only.directive';
+import { fieldsMatchValidator } from '../../../shared/validators/form.validators';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, LucideAngularModule, DigitsOnlyDirective],
   templateUrl: './register.html',
   styleUrl: '../login/auth.scss'
 })
 export class Register {
   readonly loading = signal(false);
+  readonly showPassword = signal(false);
+  readonly showConfirmation = signal(false);
+  readonly EyeIcon = Eye;
+  readonly EyeOffIcon = EyeOff;
   readonly form = this.fb.nonNullable.group({
     fullName: ['', [Validators.required, Validators.minLength(3)]],
     email: ['', [Validators.required, Validators.email]],
     phone: ['', [Validators.required, Validators.pattern(/^[0-9]{9,10}$/)]],
-    password: ['', [Validators.required, Validators.minLength(6)]],
+    password: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(72)]],
+    confirmPassword: ['', Validators.required],
     accept: [false, Validators.requiredTrue]
-  });
+  }, { validators: fieldsMatchValidator('password', 'confirmPassword') });
 
   constructor(
     private readonly fb: FormBuilder,

@@ -1,6 +1,5 @@
 import { computed, Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
@@ -27,10 +26,7 @@ export class AuthService {
     () => Boolean(this.accessTokenState() && this.currentUserState())
   );
 
-  constructor(
-    private readonly http: HttpClient,
-    private readonly router: Router
-  ) {
+  constructor(private readonly http: HttpClient) {
     if (this.accessTokenState()) {
       queueMicrotask(() => this.refreshSession());
     }
@@ -74,7 +70,7 @@ export class AuthService {
 
   logout(): void {
     this.clearSession();
-    void this.router.navigateByUrl('/');
+    window.location.assign('/');
   }
 
   hasRole(role: UserRole): boolean {

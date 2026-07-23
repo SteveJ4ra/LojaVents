@@ -11,17 +11,22 @@
       <a routerLink="/locales" routerLinkActive="active" (click)="close()">Explorar</a>
 
       @if (auth.isAuthenticated()) {
-        <a routerLink="/favoritos" routerLinkActive="active" (click)="close()">Favoritos</a>
-        <a routerLink="/mis-reservas" routerLinkActive="active" (click)="close()">Mis reservas</a>
+        @if (!auth.hasRole('ADMINISTRADOR')) {
+          <a routerLink="/favoritos" routerLinkActive="active" (click)="close()">Favoritos</a>
+          <a routerLink="/mis-reservas" routerLinkActive="active" (click)="close()">Mis reservas</a>
 
-        @if (auth.hasRole('PROPIETARIO')) {
-          <a routerLink="/propietario" routerLinkActive="active" (click)="close()">Propietario</a>
-        } @else if (auth.hasRole('CLIENTE')) {
-          <a routerLink="/convertirme-en-propietario" routerLinkActive="active" (click)="close()">Publicar local</a>
+          @if (auth.hasRole('PROPIETARIO')) {
+            <a routerLink="/propietario" routerLinkActive="active" (click)="close()">Propietario</a>
+          } @else if (auth.hasRole('CLIENTE')) {
+            <a routerLink="/convertirme-en-propietario" routerLinkActive="active" (click)="close()">Publicar local</a>
+          }
         }
 
         @if (auth.hasRole('ADMINISTRADOR')) {
-          <a routerLink="/admin" routerLinkActive="active" (click)="close()">Administración</a>
+          <a class="nav-attention" routerLink="/admin" routerLinkActive="active" (click)="close()">
+            Administración
+            @if (adminAttention.hasPending()) { <span class="attention-dot" title="Hay solicitudes pendientes" aria-label="Hay solicitudes pendientes"></span> }
+          </a>
         }
 
         <a routerLink="/perfil" routerLinkActive="active" (click)="close()">Mi perfil</a>

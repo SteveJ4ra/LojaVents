@@ -25,7 +25,7 @@ export class VenueDetail {
     private readonly router: Router,
     readonly venues: VenueService,
     readonly favorites: FavoriteService,
-    private readonly auth: AuthService,
+    readonly auth: AuthService,
     private readonly notifications: NotificationService,
     private readonly reviewService: ReviewService,
     private readonly shareService: ShareService
@@ -39,6 +39,7 @@ export class VenueDetail {
   }
 
   favorite(): void {
+    if (this.auth.hasRole('ADMINISTRADOR')) return;
     if (!this.auth.isAuthenticated()) {
       void this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
       return;

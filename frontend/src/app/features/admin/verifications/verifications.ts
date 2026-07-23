@@ -5,6 +5,7 @@ import { NotificationService } from '../../../core/services/notification.service
 import { UserService } from '../../../core/services/user.service';
 import { EmptyState } from '../../../shared/components/empty-state/empty-state';
 import { OwnerVerificationRequest } from '../../../shared/models/user.model';
+import { formatEcuadorDateTime } from '../../../shared/utils/date-time';
 
 @Component({
   selector: 'app-verifications',
@@ -32,7 +33,9 @@ export class Verifications implements OnInit {
   }
 
   approve(request: OwnerVerificationRequest): void {
-    const comment = prompt('Comentario opcional para la aprobación:', '') ?? '';
+    const comment = prompt('Comentario opcional. Puedes aceptar la solicitud sin dejar un comentario:', '');
+    if (comment === null) return;
+
     this.reviewingId.set(request.id);
     this.users.reviewOwnerRequest(request.id, {
       decision: 'APROBAR',
@@ -79,6 +82,10 @@ export class Verifications implements OnInit {
         this.notifications.show(this.readError(error), 'error');
       }
     });
+  }
+
+  formatDateTime(value: string): string {
+    return formatEcuadorDateTime(value);
   }
 
   private readError(error: unknown): string {

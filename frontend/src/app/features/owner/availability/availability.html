@@ -6,11 +6,13 @@
       @for (venue of ownerVenues(); track venue.id) { <option [value]="venue.id">{{ venue.name }}</option> }
     </select>
     <h2>Nuevo bloqueo</h2>
-    <form [formGroup]="form" (ngSubmit)="add()">
-      <label><span>Fecha</span><input type="date" formControlName="date"></label>
-      <div class="times"><label><span>Desde</span><input type="time" formControlName="startTime"></label><label><span>Hasta</span><input type="time" formControlName="endTime"></label></div>
-      <label><span>Motivo</span><input formControlName="reason"></label>
-      <button class="btn btn-primary full" type="submit">Bloquear horario</button>
+    <form [formGroup]="form" (ngSubmit)="add()" novalidate>
+      <small class="required-legend">Campos obligatorios</small>
+      <label><span>Fecha *</span><input type="date" [min]="minDate" formControlName="date" aria-required="true">@if (form.controls.date.touched && form.controls.date.invalid) { <small class="error-msg" role="alert">Selecciona la fecha que deseas bloquear.</small> }</label>
+      <div class="times"><label><span>Desde *</span><input type="time" formControlName="startTime" aria-required="true">@if (form.controls.startTime.touched && form.controls.startTime.invalid) { <small class="error-msg" role="alert">Indica la hora inicial.</small> }</label><label><span>Hasta *</span><input type="time" formControlName="endTime" aria-required="true">@if (form.controls.endTime.touched && form.controls.endTime.invalid) { <small class="error-msg" role="alert">Indica la hora final.</small> }</label></div>
+      @if (form.touched && form.hasError('invalidTimeRange')) { <small class="error-msg" role="alert">La hora final debe ser posterior a la hora inicial.</small> }
+      <label><span>Motivo *</span><input maxlength="180" formControlName="reason" aria-required="true">@if (form.controls.reason.touched && form.controls.reason.invalid) { <small class="error-msg" role="alert">Indica el motivo del bloqueo.</small> }</label>
+      <button class="btn btn-primary full" type="submit" [disabled]="saving()">{{ saving() ? 'Guardando...' : 'Bloquear horario' }}</button>
     </form>
   </section>
   <section class="panel">

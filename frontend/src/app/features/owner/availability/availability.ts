@@ -4,6 +4,8 @@ import { ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { VenueService } from '../../../core/services/venue.service';
+import { ecuadorToday } from '../../../shared/utils/date-time';
+import { timeRangeValidator, trimmedRequiredValidator } from '../../../shared/validators/form.validators';
 
 @Component({
   selector: 'app-availability',
@@ -20,12 +22,13 @@ export class Availability {
   readonly selectedId = signal(this.route.snapshot.queryParamMap.get('venueId') ?? '');
   readonly selected = computed(() => this.venues.getById(this.selectedId()));
   readonly saving = signal(false);
+  readonly minDate = ecuadorToday();
   readonly form = this.fb.nonNullable.group({
     date: ['', Validators.required],
     startTime: ['08:00', Validators.required],
     endTime: ['18:00', Validators.required],
-    reason: ['No disponible', Validators.required]
-  });
+    reason: ['No disponible', [trimmedRequiredValidator(), Validators.maxLength(180)]]
+  }, { validators: timeRangeValidator('startTime', 'endTime') });
 
   constructor(
     private readonly fb: FormBuilder,
@@ -54,10 +57,6 @@ export class Availability {
       return;
     }
     const value = this.form.getRawValue();
-    if (value.startTime >= value.endTime) {
-      this.notifications.show('La hora final debe ser posterior a la inicial.', 'error');
-      return;
-    }
 
     this.saving.set(true);
     this.venues.addBlock(this.selectedId(), value).subscribe({

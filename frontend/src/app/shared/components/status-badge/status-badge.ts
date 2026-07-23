@@ -16,7 +16,24 @@ import { Component, computed, input } from '@angular/core';
 export class StatusBadge {
   readonly status = input.required<string>();
 
-  readonly label = computed(() => this.status().replaceAll('_', ' '));
+  readonly label = computed(() => {
+    const labels: Record<string, string> = {
+      EN_PROCESO: 'En proceso',
+      CONFIRMADA: 'Confirmada',
+      RECHAZADA: 'Rechazada',
+      CANCELADA: 'Cancelada',
+      ACTIVO: 'Activo',
+      INACTIVO: 'Inactivo',
+      SUSPENDIDO: 'Suspendido',
+      PENDIENTE: 'Pendiente',
+      APROBADA: 'Aprobada',
+      NO_SOLICITADA: 'No solicitada',
+      CLIENTE: 'Cliente',
+      PROPIETARIO: 'Propietario',
+      ADMINISTRADOR: 'Administrador'
+    };
+    return labels[this.status()] ?? this.status().replaceAll('_', ' ');
+  });
   readonly cssClass = computed(() => {
     const status = this.status();
     if (['CONFIRMADA', 'ACTIVO', 'APROBADA'].includes(status)) return 'success';

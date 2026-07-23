@@ -1,0 +1,213 @@
+@startuml
+title LojaVents - Creación y confirmación de una reserva
+
+autonumber
+hide footbox
+
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam sequenceArrowColor #475569
+skinparam sequenceLifeLineBorderColor #94A3B8
+skinparam sequenceLifeLineBackgroundColor #F8FAFC
+skinparam sequenceParticipantBorderColor #64748B
+skinparam sequenceParticipantBackgroundColor #F8FAFC
+skinparam sequenceParticipantFontColor #172033
+skinparam sequenceActorBorderColor #64748B
+skinparam sequenceActorBackgroundColor #FFFFFF
+skinparam sequenceGroupBorderColor #64748B
+skinparam sequenceGroupBackgroundColor #F8FAFC
+skinparam sequenceGroupFontColor #172033
+skinparam sequenceMessageAlign center
+skinparam maxMessageSize 70
+
+actor Cliente
+boundary "BookingWizard\nAngular" as Wizard
+boundary "VenueService\nAngular" as VenueClient
+boundary "BookingService\nAngular" as BookingClient
+boundary "PaymentService\nAngular" as PaymentClient
+control "PublicVenueController" as VenueController
+control "ReservationController" as ReservationController
+control "ReservationApplicationService" as ReservationService
+control "ReservationAvailabilityService" as AvailabilityService
+database "UsuarioRepository" as UserRepository
+database "LocalEventoRepository" as VenueRepository
+database "ReservaRepository" as ReservationRepository
+entity "Reserva" as Reservation
+entity "PagoSimulado" as Payment
+database "AuditEventRepository" as AuditRepository
+
+== Carga y validación previa ==
+Cliente -> Wizard : Abre la reserva del local
+activate Wizard
+Wizard -> VenueClient : loadPublicVenue(localId)
+activate VenueClient
+VenueClient -> VenueController : GET /api/v1/locales/{id}
+activate VenueController
+VenueController --> VenueClient : 200 VenueResponse
+deactivate VenueController
+VenueClient --> Wizard : local, capacidad, precio y condiciones
+deactivate VenueClient
+Wizard -> Wizard : Configura validadores y calcula\nimporte estimado (subtotal + 8 %)
+
+Cliente -> Wizard : Ingresa fecha, hora, duración y asistentes
+alt datos de evento inválidos en el formulario
+  Wizard --> Cliente : Muestra errores locales\n(duración 1..12, enteros, capacidad)
+else datos de evento válidos
+  Wizard -> BookingClient : checkAvailability(localId, fecha, hora, duración)
+  activate BookingClient
+  BookingClient -> VenueController : GET /api/v1/locales/{id}/disponibilidad
+  activate VenueController
+  VenueController -> AvailabilityService : check(...)
+  activate AvailabilityService
+  AvailabilityService -> AvailabilityService : Evalúa publicación, fecha/hora,\nduración y bloqueos del local
+  AvailabilityService -> ReservationRepository : findByVenueDatesAndStatus(..., CONFIRMADA)
+  activate ReservationRepository
+  ReservationRepository --> AvailabilityService : reservas confirmadas cercanas
+  deactivate ReservationRepository
+  alt horario disponible
+    AvailabilityService --> VenueController : available=true
+  else horario no disponible
+    AvailabilityService --> VenueController : available=false y mensaje
+  end
+  deactivate AvailabilityService
+  VenueController --> BookingClient : 200 AvailabilityResponse
+  deactivate VenueController
+  BookingClient --> Wizard : resultado de disponibilidad
+  deactivate BookingClient
+  alt horario no disponible
+    Wizard --> Cliente : Muestra el motivo y permanece\nen los datos del evento
+  else disponibilidad confirmada
+    Wizard --> Cliente : Solicita dirección de facturación\ny aceptación de condiciones
+  end
+end
+
+== Creación de la reserva en proceso ==
+Cliente -> Wizard : Completa facturación y acepta condiciones
+alt facturación o condiciones inválidas
+  Wizard --> Cliente : Muestra errores y no envía la solicitud
+else formularios válidos
+  Wizard -> BookingClient : create(CreateBookingRequest)
+  activate BookingClient
+  BookingClient -> ReservationController : POST /api/v1/reservas\nBearer JWT + CreateReservationRequest
+  activate ReservationController
+  ReservationController -> ReservationController : Valida @Valid y obtiene subject JWT
+  alt solicitud HTTP inválida o no autorizada
+    ReservationController --> BookingClient : 400/401/403 con error
+  else solicitud válida
+    ReservationController -> ReservationService : createDraft(subject, request)
+    activate ReservationService
+    ReservationService -> UserRepository : findById(subject)
+    activate UserRepository
+    UserRepository --> ReservationService : cliente activo
+    deactivate UserRepository
+    ReservationService -> VenueRepository : findById(venueId)
+    activate VenueRepository
+    VenueRepository --> ReservationService : LocalEvento
+    deactivate VenueRepository
+    ReservationService -> ReservationService : Valida capacidad\ny calcula importe definitivo
+    ReservationService -> AvailabilityService : assertAvailable(local, fecha, hora, duración)
+    activate AvailabilityService
+    AvailabilityService -> ReservationRepository : findByVenueDatesAndStatus(..., CONFIRMADA)
+    activate ReservationRepository
+    ReservationRepository --> AvailabilityService : reservas confirmadas cercanas
+    deactivate ReservationRepository
+    alt datos, capacidad o disponibilidad inválidos
+      AvailabilityService --> ReservationService : ApiException 400/409
+    else disponible
+      AvailabilityService --> ReservationService : disponible
+      create Reservation
+      ReservationService -> Reservation : new Reserva(...)
+      activate Reservation
+      Reservation -> Reservation : Crea PeriodoReserva, DatosFacturacion,\nImporteReserva y ReferenciaPublicaReserva\nEstado inicial: EN_PROCESO
+      deactivate Reservation
+      ReservationService -> ReservationRepository : save(reserva EN_PROCESO)
+      activate ReservationRepository
+      ReservationRepository --> ReservationService : reserva persistida
+      deactivate ReservationRepository
+      ReservationService -> AuditRepository : save(RESERVA_INICIADA)
+      activate AuditRepository
+      AuditRepository --> ReservationService : evento registrado
+      deactivate AuditRepository
+      ReservationService --> ReservationController : ReservationResponse\n(id interno, referencia pública, importes, EN_PROCESO)
+    end
+    deactivate AvailabilityService
+    deactivate ReservationService
+    ReservationController --> BookingClient : 201 ReservationResponse
+  end
+  deactivate ReservationController
+  BookingClient --> Wizard : borrador y id interno para el pago
+  deactivate BookingClient
+end
+
+== Pago interno y resultado ==
+Cliente -> Wizard : Pulsa Pagar ahora
+Wizard -> PaymentClient : process(reservationId, APPROVE)
+activate PaymentClient
+PaymentClient -> BookingClient : processPayment(reservationId, APPROVE)
+activate BookingClient
+BookingClient -> ReservationController : POST /api/v1/reservas/{id}/pago-simulado\nBearer JWT + PaymentSimulationRequest
+activate ReservationController
+ReservationController -> ReservationService : simulatePayment(subject, id, request)
+activate ReservationService
+ReservationService -> ReservationRepository : findOwnedByClient(id, subject)
+activate ReservationRepository
+ReservationRepository --> ReservationService : reserva EN_PROCESO del cliente
+deactivate ReservationRepository
+alt reserva inexistente, ajena o ya procesada
+  ReservationService --> ReservationController : ApiException 404/409
+  ReservationController --> BookingClient : error
+  BookingClient --> Wizard : muestra el error
+else reserva en proceso
+  create Payment
+  ReservationService -> Payment : new PagoSimulado(resultado, modo, referencia, mensaje)
+  activate Payment
+  Payment --> ReservationService : pago preparado
+  deactivate Payment
+  alt pago aprobado
+    ReservationService -> VenueRepository : findByIdForUpdate(localId)
+    activate VenueRepository
+    VenueRepository --> ReservationService : LocalEvento bloqueado\n(PESSIMISTIC_WRITE)
+    deactivate VenueRepository
+    ReservationService -> AvailabilityService : assertAvailable(local bloqueado, fecha, hora, duración)
+    activate AvailabilityService
+    AvailabilityService -> ReservationRepository : findByVenueDatesAndStatus(..., CONFIRMADA)
+    activate ReservationRepository
+    ReservationRepository --> AvailabilityService : reservas confirmadas cercanas
+    deactivate ReservationRepository
+    AvailabilityService --> ReservationService : disponibilidad confirmada
+    deactivate AvailabilityService
+    ReservationService -> Reservation : aprobarPago(pago)
+    activate Reservation
+    Reservation -> Reservation : Asocia pago y cambia a CONFIRMADA
+    deactivate Reservation
+  else pago rechazado\n(fondos, proveedor o aplicación)
+    ReservationService -> Reservation : rechazarPago(pago, motivo)
+    activate Reservation
+    Reservation -> Reservation : Asocia pago y cambia a RECHAZADA
+    deactivate Reservation
+  end
+  ReservationService -> ReservationRepository : save(reserva y pago en cascada)
+  activate ReservationRepository
+  ReservationRepository --> ReservationService : cambios persistidos
+  deactivate ReservationRepository
+  ReservationService -> AuditRepository : save(PAGO_SIMULADO_APROBADO o RECHAZADO)
+  activate AuditRepository
+  AuditRepository --> ReservationService : evento registrado
+  deactivate AuditRepository
+  ReservationService --> ReservationController : ReservationResponse
+  deactivate ReservationService
+  ReservationController --> BookingClient : 200 ReservationResponse
+  BookingClient --> PaymentClient : reserva actualizada
+  deactivate BookingClient
+  PaymentClient --> Wizard : resultado del pago
+  deactivate PaymentClient
+  alt estado CONFIRMADA
+    Wizard --> Cliente : Muestra confirmación y\nreferencia pública de la reserva
+  else estado RECHAZADA
+    Wizard --> Cliente : Muestra motivo y referencias\npúblicas del rechazo
+  end
+end
+deactivate ReservationController
+deactivate Wizard
+
+@enduml

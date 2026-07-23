@@ -19,6 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
@@ -78,12 +80,16 @@ public class ReviewApplicationService {
             );
         }
 
-        LocalDate today = LocalDate.now(LOJA_ZONE);
-        if (!reservation.getFecha().isBefore(today)) {
+        if (!eventHasFinished(
+                reservation.getFecha(),
+                reservation.getHoraInicio(),
+                reservation.getDuracionHoras(),
+                LocalDateTime.now(LOJA_ZONE)
+        )) {
             throw new ApiException(
                     HttpStatus.CONFLICT,
                     "EVENT_NOT_FINISHED",
-                    "Podrás publicar la reseña después de la fecha del evento."
+                    "Podrás publicar la reseña cuando finalice el evento."
             );
         }
 
@@ -131,6 +137,17 @@ public class ReviewApplicationService {
 
         venue.configurarCalificacion(average, reviews.size());
         localRepository.save(venue);
+    }
+
+    static boolean eventHasFinished(
+            LocalDate date,
+            LocalTime startTime,
+            int durationHours,
+            LocalDateTime now
+    ) {
+        return LocalDateTime.of(date, startTime)
+                .plusHours(durationHours)
+                .isBefore(now);
     }
 
     private UUID parseSubject(String subject) {

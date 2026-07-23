@@ -63,6 +63,7 @@ services:
       MONGO_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRATION_MINUTES: ${JWT_EXPIRATION_MINUTES:-120}
+      TZ: America/Guayaquil
     expose:
       - "8080"
     depends_on:

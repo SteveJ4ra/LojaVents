@@ -2,7 +2,6 @@
   <div>
     <span class="eyebrow">Administración</span>
     <h1>Resumen general</h1>
-    <p>Indicadores consolidados desde PostgreSQL y actividad reciente desde MongoDB.</p>
   </div>
   <button class="btn btn-secondary" type="button" (click)="refresh()" [disabled]="loading()">
     {{ loading() ? 'Actualizando…' : 'Actualizar' }}

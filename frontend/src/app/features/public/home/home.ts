@@ -1,20 +1,24 @@
 import { Component } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { CircleHelp, LucideAngularModule } from 'lucide-angular';
 import { AuthService } from '../../../core/services/auth.service';
 import { FavoriteService } from '../../../core/services/favorite.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { VenueService } from '../../../core/services/venue.service';
 import { VenueCard } from '../../../shared/components/venue-card/venue-card';
+import { ecuadorToday } from '../../../shared/utils/date-time';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, VenueCard],
+  imports: [ReactiveFormsModule, RouterLink, VenueCard, LucideAngularModule],
   templateUrl: './home.html',
   styleUrl: './home.scss'
 })
 export class Home {
+  readonly HelpIcon = CircleHelp;
+  readonly minDate = ecuadorToday();
   readonly searchForm = this.fb.nonNullable.group({
     eventType: [''],
     date: [''],
@@ -26,7 +30,7 @@ export class Home {
     private readonly router: Router,
     readonly venues: VenueService,
     readonly favorites: FavoriteService,
-    private readonly auth: AuthService,
+    readonly auth: AuthService,
     private readonly notifications: NotificationService
   ) {
     this.venues.ensurePublicVenues();
@@ -38,6 +42,7 @@ export class Home {
   }
 
   toggleFavorite(id: string): void {
+    if (this.auth.hasRole('ADMINISTRADOR')) return;
     if (!this.auth.isAuthenticated()) {
       void this.router.navigate(['/login'], { queryParams: { returnUrl: '/' } });
       return;

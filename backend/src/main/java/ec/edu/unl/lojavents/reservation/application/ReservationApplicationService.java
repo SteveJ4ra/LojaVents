@@ -199,17 +199,17 @@ public class ReservationApplicationService {
 
     private PaymentOutcome outcomeFor(ModoPagoSimulado mode) {
         return switch (mode) {
-            case APPROVE -> new PaymentOutcome(true, "Pago simulado aprobado. No se realizó ningún cobro real.");
-            case REJECT_FUNDS -> new PaymentOutcome(false, "Pago simulado rechazado por fondos insuficientes.");
-            case REJECT_PROVIDER -> new PaymentOutcome(false, "Pago simulado rechazado por indisponibilidad de la pasarela.");
-            case REJECT_APPLICATION -> new PaymentOutcome(false, "Pago simulado rechazado por un error de la aplicación.");
+            case APPROVE -> new PaymentOutcome(true, "Pago aprobado correctamente.");
+            case REJECT_FUNDS -> new PaymentOutcome(false, "Pago rechazado por fondos insuficientes.");
+            case REJECT_PROVIDER -> new PaymentOutcome(false, "Pago rechazado por indisponibilidad del proveedor.");
+            case REJECT_APPLICATION -> new PaymentOutcome(false, "Pago rechazado por un error de la aplicación.");
         };
     }
 
     private String createReference(boolean approved) {
         String timestamp = OffsetDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
         String suffix = UUID.randomUUID().toString().substring(0, 8).toUpperCase();
-        return "%s-%s-%s".formatted(approved ? "SIM-OK" : "SIM-REJ", timestamp, suffix);
+        return "%s-%s-%s".formatted(approved ? "PAY-OK" : "PAY-REJ", timestamp, suffix);
     }
 
     private UUID parseSubject(String subject) {

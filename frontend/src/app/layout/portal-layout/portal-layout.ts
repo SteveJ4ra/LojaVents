@@ -1,10 +1,11 @@
-import { Component, input } from '@angular/core';
+import { Component, input, Signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
 export interface PortalLink {
   label: string;
   route: string;
   icon: string;
+  attention?: Signal<number>;
 }
 
 @Component({

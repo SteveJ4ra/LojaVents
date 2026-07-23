@@ -18,6 +18,7 @@ label span { display:block; font-size:.84rem; font-weight:750; margin-bottom:7px
 .wide { grid-column:1/-1; }
 .buttons { display:flex; justify-content:flex-end; gap:10px; margin-top:26px; }
 .help { color:var(--text-muted); }
+.conditions-error { margin:8px 0 0 30px; }
 .checkbox { display:flex; align-items:flex-start; gap:10px; margin:15px 0; }
 .checkbox input { width:auto; margin-top:4px; }
 .rules { background:var(--surface-muted); border-radius:14px; padding:20px; margin:18px 0; }

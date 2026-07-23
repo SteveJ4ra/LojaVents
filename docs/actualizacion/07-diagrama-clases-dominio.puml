@@ -1,5 +1,5 @@
 @startuml
-title LojaVents - Diagrama de clases del dominio
+title LojaVents - Modelo de dominio vigente
 
 top to bottom direction
 
@@ -8,33 +8,30 @@ skinparam shadowing false
 skinparam linetype ortho
 skinparam packageStyle rectangle
 skinparam classAttributeIconSize 0
-skinparam ArrowColor #4B5563
+skinparam ArrowColor #475569
 skinparam ClassBorderColor #475569
 skinparam ClassFontColor #172033
 skinparam ClassFontSize 11
 skinparam ClassAttributeFontSize 10
 skinparam ClassStereotypeFontSize 10
-skinparam EnumBorderColor #6B7280
+skinparam EnumBorderColor #64748B
 skinparam EnumBackgroundColor #FFFFFF
 skinparam EnumFontColor #172033
 skinparam PackageBorderColor #64748B
 skinparam PackageFontColor #172033
 skinparam PackageFontStyle bold
-skinparam nodesep 42
-skinparam ranksep 52
+skinparam nodesep 34
+skinparam ranksep 42
 
 hide circle
 
-package "Usuarios" as Usuarios #EAF2F8 {
+package "Usuarios y solicitudes" as Usuarios #EAF2F8 {
   class Usuario #F8FBFE {
     - id: UUID
     - nombres: String
     - email: String
     - passwordHash: String
     - telefono: String
-    - roles: Set<Rol>
-    - estado: EstadoUsuario
-    - estadoVerificacionPropietario: EstadoVerificacionPropietario
     - creadoEn: OffsetDateTime
     --
     + actualizarPerfil(nombres: String, telefono: String): void
@@ -46,13 +43,12 @@ package "Usuarios" as Usuarios #EAF2F8 {
 
   class SolicitudPropietario #F8FBFE {
     - id: UUID
-    - identificacion: String
     - documentoReferencia: String
     - documentoArchivoId: String
     - documentoNombre: String
     - documentoTipo: String
+    - documentoTamano: Long
     - notas: String
-    - estado: EstadoSolicitudPropietario
     - comentarioAdmin: String
     - creadoEn: OffsetDateTime
     - revisadoEn: OffsetDateTime
@@ -60,37 +56,44 @@ package "Usuarios" as Usuarios #EAF2F8 {
     + aprobar(admin: Usuario, comentario: String): void
     + rechazar(admin: Usuario, comentario: String): void
   }
+
+  class DocumentoIdentidad <<embeddable>> #F8FBFE {
+    - numero: String
+  }
 }
 
-package "Locales" as Locales #EAF7EF {
+package "Locales y disponibilidad" as Locales #EAF7EF {
   class LocalEvento #F7FCF9 {
     - id: UUID
     - nombre: String
     - descripcionCorta: String
     - descripcion: String
-    - sector: String
-    - direccion: String
     - precioHora: BigDecimal
-    - capacidad: Integer
+    - capacidad: int
     - calificacion: BigDecimal
-    - totalResenas: Integer
-    - destacado: Boolean
-    - activo: Boolean
-    - pendienteRevision: Boolean
+    - totalResenas: int
+    - destacado: boolean
     - politicaCancelacion: String
     - tiposEvento: Set<String>
     - amenidades: Set<String>
     - reglas: List<String>
     - imagenes: List<String>
+    - creadoEn: OffsetDateTime
     - actualizadoEn: OffsetDateTime
     --
-    + cambiarEstado(activo: Boolean): void
+    + actualizar(...): void
+    + desactivar(): void
     + solicitarRevision(): void
     + aprobarRevision(): void
-    + configurarDestacado(destacado: Boolean): void
-    + configurarCalificacion(calificacion: BigDecimal, totalResenas: Integer): void
+    + configurarDestacado(destacado: boolean): void
+    + configurarCalificacion(calificacion: BigDecimal, totalResenas: int): void
     + agregarBloqueo(bloqueo: BloqueDisponibilidad): void
-    + eliminarBloqueo(bloqueoId: UUID): Boolean
+    + eliminarBloqueo(bloqueoId: UUID): boolean
+  }
+
+  class DireccionLocal <<embeddable>> #F7FCF9 {
+    - sector: String
+    - direccion: String
   }
 
   class BloqueDisponibilidad #F7FCF9 {
@@ -105,34 +108,51 @@ package "Locales" as Locales #EAF7EF {
 package "Reservas y pagos" as ReservasPagos #FFF4E5 {
   class Reserva #FFFBF3 {
     - id: UUID
-    - fecha: LocalDate
-    - horaInicio: LocalTime
-    - duracionHoras: Integer
-    - asistentes: Integer
-    - ciudadFacturacion: String
-    - sectorFacturacion: String
-    - direccionFacturacion: String
-    - subtotal: BigDecimal
-    - tarifaServicio: BigDecimal
-    - total: BigDecimal
-    - estado: EstadoReserva
+    - asistentes: int
     - motivoRechazo: String
-    - reglasAceptadas: Boolean
-    - cancelacionAceptada: Boolean
-    - resenaEnviada: Boolean
+    - reglasAceptadas: boolean
+    - cancelacionAceptada: boolean
+    - resenaEnviada: boolean
     - creadoEn: OffsetDateTime
     - actualizadoEn: OffsetDateTime
-    - version: Long
+    - version: long
     --
     + aprobarPago(pago: PagoSimulado): void
     + rechazarPago(pago: PagoSimulado, motivo: String): void
     + marcarResenaEnviada(): void
   }
 
+  class PeriodoReserva <<embeddable>> #FFFBF3 {
+    - fecha: LocalDate
+    - horaInicio: LocalTime
+    - duracionHoras: int
+    --
+    + inicio(): LocalDateTime
+    + fin(): LocalDateTime
+    + seSolapaCon(otro: PeriodoReserva): boolean
+  }
+
+  class DatosFacturacion <<embeddable>> #FFFBF3 {
+    - ciudad: String
+    - sector: String
+    - direccion: String
+  }
+
+  class ImporteReserva <<embeddable>> #FFFBF3 {
+    - subtotal: BigDecimal
+    - tarifaServicio: BigDecimal
+    - total: BigDecimal
+  }
+
+  class ReferenciaPublicaReserva <<embeddable>> #FFFBF3 {
+    - valor: String
+    --
+    + {static} generar(): ReferenciaPublicaReserva
+    + {static} desde(valor: String): ReferenciaPublicaReserva
+  }
+
   class PagoSimulado #FFFBF3 {
     - id: UUID
-    - estado: EstadoPagoSimulado
-    - modo: ModoPagoSimulado
     - referencia: String
     - mensaje: String
     - procesadoEn: OffsetDateTime
@@ -147,7 +167,7 @@ package "Interacción" as Interaccion #F4ECF7 {
 
   class Resena #FBF8FC {
     - id: UUID
-    - calificacion: Integer
+    - calificacion: int
     - comentario: String
     - creadoEn: OffsetDateTime
     - actualizadoEn: OffsetDateTime
@@ -180,9 +200,21 @@ package "Enumeraciones" as Enumeraciones #F3F4F6 {
     RECHAZADA
   }
 
+  enum TipoDocumentoIdentidad {
+    CEDULA
+    PASAPORTE
+    LICENCIA_CONDUCIR
+  }
+
+  enum EstadoPublicacionLocal {
+    PENDIENTE_REVISION
+    PUBLICADO
+    INACTIVO
+  }
+
   enum EstadoReserva {
     EN_PROCESO
-    COMPLETADA
+    CONFIRMADA
     RECHAZADA
     CANCELADA
   }
@@ -200,30 +232,41 @@ package "Enumeraciones" as Enumeraciones #F3F4F6 {
   }
 }
 
-Usuario "1" -down- "0..*" SolicitudPropietario : solicitante
-Usuario "0..1" -down- "0..*" SolicitudPropietario : revisor
-Usuario "1" -[norank]- "0..*" LocalEvento : propietario
-LocalEvento "1" *-down- "0..*" BloqueDisponibilidad : bloqueos
-Usuario "1" -[norank]- "0..*" Reserva : cliente
-LocalEvento "1" -[norank]- "0..*" Reserva : local
-Reserva "1" *-right- "0..1" PagoSimulado : pago
-Usuario "1" -[norank]- "0..*" Favorito : cliente
-LocalEvento "1" -down- "0..*" Favorito : local
-Reserva "1" -down- "0..1" Resena : reserva
-Usuario "1" -[norank]- "0..*" Resena : cliente
-LocalEvento "1" -[norank]- "0..*" Resena : local
+Usuario "1" -- "0..*" SolicitudPropietario : solicitante
+Usuario "0..1" -- "0..*" SolicitudPropietario : revisor
+SolicitudPropietario "1" *-- "1" DocumentoIdentidad
 
-Usuario ..down.> Rol
-Usuario ..down.> EstadoUsuario
-Usuario ..down.> EstadoVerificacionPropietario
-SolicitudPropietario ..down.> EstadoSolicitudPropietario
-Reserva ..down.> EstadoReserva
-PagoSimulado ..down.> EstadoPagoSimulado
-PagoSimulado ..down.> ModoPagoSimulado
+Usuario "1" -- "0..*" LocalEvento : propietario
+LocalEvento "1" *-- "1" DireccionLocal
+LocalEvento "1" *-- "0..*" BloqueDisponibilidad : bloqueos
 
-LocalEvento -[hidden]r- Usuario
-LocalEvento -[hidden]r- Reserva
-Locales -[hidden]d- Interaccion
-Interaccion -[hidden]d- Enumeraciones
+Usuario "1" -- "0..*" Reserva : cliente
+LocalEvento "1" -- "0..*" Reserva : local
+Reserva "1" *-- "1" PeriodoReserva
+Reserva "1" *-- "1" DatosFacturacion
+Reserva "1" *-- "1" ImporteReserva
+Reserva "1" *-- "1" ReferenciaPublicaReserva
+Reserva "1" *-- "0..1" PagoSimulado : pago
+
+Usuario "1" -- "0..*" Favorito : cliente
+LocalEvento "1" -- "0..*" Favorito : local
+Reserva "1" -- "0..1" Resena : resena
+Usuario "1" -- "0..*" Resena : cliente
+LocalEvento "1" -- "0..*" Resena : local
+
+Usuario ..> Rol
+Usuario ..> EstadoUsuario
+Usuario ..> EstadoVerificacionPropietario
+SolicitudPropietario ..> EstadoSolicitudPropietario
+DocumentoIdentidad ..> TipoDocumentoIdentidad
+LocalEvento ..> EstadoPublicacionLocal
+Reserva ..> EstadoReserva
+PagoSimulado ..> EstadoPagoSimulado
+PagoSimulado ..> ModoPagoSimulado
+
+Usuarios -[hidden]right- Locales
+Locales -[hidden]right- ReservasPagos
+Usuarios -[hidden]down- Interaccion
+ReservasPagos -[hidden]down- Enumeraciones
 
 @enduml

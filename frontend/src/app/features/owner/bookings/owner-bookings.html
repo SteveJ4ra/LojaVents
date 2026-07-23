@@ -11,9 +11,9 @@
         <tbody>
           @for (booking of bookings(); track booking.id) {
             <tr>
-              <td><strong>{{ booking.venueName }}</strong><small>{{ booking.id }}</small></td>
+              <td><strong>{{ booking.venueName }}</strong><small>{{ booking.publicReference }}</small></td>
               <td>{{ booking.userName }}<small>{{ booking.userEmail }}</small></td>
-              <td>{{ booking.date | date:'mediumDate' }}<small>{{ booking.startTime }}</small></td>
+              <td>{{ formatEventDate(booking.date) }}<small>{{ booking.startTime }}</small></td>
               <td>{{ booking.durationHours }} horas</td>
               <td>{{ booking.attendees }}</td>
               <td>{{ booking.total | currency:'USD' }}</td>

@@ -60,12 +60,34 @@ public record ReservationResponse(
                 reserva.getEstado().name(),
                 pago == null ? null : pago.getEstado().name(),
                 pago == null ? null : pago.getModo().name(),
-                pago == null ? null : pago.getReferencia(),
-                pago == null ? null : pago.getMensaje(),
-                reserva.getMotivoRechazo(),
+                pago == null ? null : publicPaymentReference(pago.getReferencia()),
+                pago == null ? null : publicPaymentMessage(pago),
+                publicRejectionReason(reserva.getMotivoRechazo()),
                 reserva.getCreadoEn(),
                 reserva.getActualizadoEn(),
                 reserva.isResenaEnviada()
         );
+    }
+
+    static String publicPaymentReference(String reference) {
+        if (reference == null) return null;
+        return reference
+                .replaceFirst("^SIM-OK-", "PAY-OK-")
+                .replaceFirst("^SIM-REJ-", "PAY-REJ-")
+                .replaceFirst("^SIM-DEMO-", "PAY-DEMO-")
+                .replaceFirst("^SIM-", "PAY-");
+    }
+
+    static String publicPaymentMessage(PagoSimulado payment) {
+        String message = payment.getMensaje();
+        if (message == null || !message.toLowerCase().contains("simulad")) return message;
+        return payment.getEstado().name().equals("APROBADO")
+                ? "Pago aprobado correctamente."
+                : "Pago rechazado.";
+    }
+
+    static String publicRejectionReason(String reason) {
+        if (reason == null || !reason.toLowerCase().contains("simulad")) return reason;
+        return "El pago fue rechazado.";
     }
 }

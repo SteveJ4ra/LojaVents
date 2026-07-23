@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -63,6 +64,20 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMINISTRADOR")
                         .requestMatchers("/api/v1/propietario/**").hasRole("PROPIETARIO")
+                        .requestMatchers(
+                                "/api/v1/favoritos/**",
+                                "/api/v1/reservas/**",
+                                "/api/v1/solicitud-propietario/**"
+                        ).access((authentication, context) -> {
+                            var current = authentication.get();
+                            boolean authenticatedUser = current != null
+                                    && current.isAuthenticated()
+                                    && current.getAuthorities().stream()
+                                    .noneMatch(authority -> authority.getAuthority().equals("ROLE_ANONYMOUS"));
+                            boolean administrator = current != null && current.getAuthorities().stream()
+                                    .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMINISTRADOR"));
+                            return new AuthorizationDecision(authenticatedUser && !administrator);
+                        })
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth -> oauth.jwt(jwt ->

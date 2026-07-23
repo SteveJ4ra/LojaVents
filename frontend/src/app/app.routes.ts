@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { nonAdminGuard } from './core/guards/non-admin.guard';
 import { roleGuard } from './core/guards/role.guard';
 
 export const routes: Routes = [
@@ -30,25 +31,25 @@ export const routes: Routes = [
   },
   {
     path: 'reservar/:id',
-    canActivate: [authGuard],
+    canActivate: [authGuard, nonAdminGuard],
     loadComponent: () => import('./features/booking/booking-wizard/booking-wizard').then(m => m.BookingWizard),
     title: 'Reservar local | LojaVents'
   },
   {
     path: 'favoritos',
-    canActivate: [authGuard],
+    canActivate: [authGuard, nonAdminGuard],
     loadComponent: () => import('./features/customer/favorites/favorites').then(m => m.Favorites),
     title: 'Mis favoritos | LojaVents'
   },
   {
     path: 'mis-reservas',
-    canActivate: [authGuard],
+    canActivate: [authGuard, nonAdminGuard],
     loadComponent: () => import('./features/customer/bookings/my-bookings').then(m => m.MyBookings),
     title: 'Mis reservas | LojaVents'
   },
   {
     path: 'perfil',
-    canActivate: [authGuard],
+    canActivate: [authGuard, nonAdminGuard],
     loadComponent: () => import('./features/customer/profile/profile').then(m => m.Profile),
     title: 'Mi perfil | LojaVents'
   },
@@ -60,7 +61,7 @@ export const routes: Routes = [
   },
   {
     path: 'propietario',
-    canActivate: [authGuard, roleGuard],
+    canActivate: [authGuard, nonAdminGuard, roleGuard],
     data: { roles: ['PROPIETARIO'] },
     loadComponent: () => import('./features/owner/owner-shell/owner-shell').then(m => m.OwnerShell),
     children: [

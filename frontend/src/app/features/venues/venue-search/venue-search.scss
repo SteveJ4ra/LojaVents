@@ -2,6 +2,9 @@
 aside { border:1px solid var(--border); background:var(--surface); border-radius:18px; padding:20px; height:max-content; position:sticky; top:92px; }
 form { display:grid; gap:18px; }
 label span { display:block; font-size:.83rem; font-weight:750; margin-bottom:7px; }
+.label-with-help { display:flex; align-items:center; gap:6px; }
+.help-icon { display:grid; place-items:center; width:24px; height:24px; padding:0; border:0; border-radius:50%; color:var(--text-muted); background:transparent; cursor:help; }
+.help-icon:hover,.help-icon:focus-visible { color:var(--primary); background:var(--primary-soft); outline:none; }
 .full { width:100%; }
 .results-heading h2 { margin:0 0 24px; }
 .card-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:22px; }

@@ -2,6 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { Eye, EyeOff, LucideAngularModule } from 'lucide-angular';
 import { finalize } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
@@ -9,12 +10,15 @@ import { NotificationService } from '../../../core/services/notification.service
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, LucideAngularModule],
   templateUrl: './login.html',
   styleUrl: './auth.scss'
 })
 export class Login {
   readonly loading = signal(false);
+  readonly showPassword = signal(false);
+  readonly EyeIcon = Eye;
+  readonly EyeOffIcon = EyeOff;
   readonly form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]]

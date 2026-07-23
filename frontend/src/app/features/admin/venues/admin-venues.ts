@@ -1,5 +1,5 @@
 import { CurrencyPipe } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
 import { NotificationService } from '../../../core/services/notification.service';
 import { VenueService } from '../../../core/services/venue.service';
 import { StatusBadge } from '../../../shared/components/status-badge/status-badge';
@@ -12,6 +12,17 @@ import { StatusBadge } from '../../../shared/components/status-badge/status-badg
   styleUrl: './admin-venues.scss'
 })
 export class AdminVenues {
+  readonly query = signal('');
+  readonly filteredVenues = computed(() => {
+    const query = normalize(this.query());
+    return [...this.venues.venues()]
+      .filter(venue => !query || [
+        venue.name, venue.neighborhood, venue.address, ...venue.eventTypes
+      ].some(value => normalize(value).includes(query)))
+      .sort((left, right) => Number(Boolean(right.pendingReview)) - Number(Boolean(left.pendingReview))
+        || left.name.localeCompare(right.name, 'es'));
+  });
+
   constructor(
     readonly venues: VenueService,
     private readonly notifications: NotificationService
@@ -32,4 +43,12 @@ export class AdminVenues {
       error: error => this.notifications.show(error?.error?.detail ?? 'No fue posible actualizar el estado.', 'error')
     });
   }
+
+  updateQuery(event: Event): void {
+    this.query.set((event.target as HTMLInputElement).value);
+  }
+}
+
+function normalize(value: string): string {
+  return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase();
 }

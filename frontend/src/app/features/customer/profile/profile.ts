@@ -2,15 +2,18 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, effect, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { finalize } from 'rxjs';
+import { Eye, EyeOff, LucideAngularModule } from 'lucide-angular';
 import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { UserService } from '../../../core/services/user.service';
 import { StatusBadge } from '../../../shared/components/status-badge/status-badge';
+import { DigitsOnlyDirective } from '../../../shared/directives/digits-only.directive';
+import { fieldsMatchValidator } from '../../../shared/validators/form.validators';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [ReactiveFormsModule, StatusBadge],
+  imports: [ReactiveFormsModule, StatusBadge, LucideAngularModule, DigitsOnlyDirective],
   templateUrl: './profile.html',
   styleUrl: './profile.scss'
 })
@@ -18,11 +21,16 @@ export class Profile {
   readonly user = this.auth.currentUser;
   readonly savingProfile = signal(false);
   readonly savingPassword = signal(false);
+  readonly showCurrentPassword = signal(false);
+  readonly showNewPassword = signal(false);
+  readonly showConfirmation = signal(false);
+  readonly EyeIcon = Eye;
+  readonly EyeOffIcon = EyeOff;
 
   readonly form = this.fb.nonNullable.group({
     fullName: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(120)]],
-    phone: ['', [Validators.required, Validators.minLength(7), Validators.maxLength(30)]]
-  });
+    phone: ['', [Validators.required, Validators.pattern(/^[0-9]{9,10}$/)]]
+  }, { validators: fieldsMatchValidator('newPassword', 'confirmPassword') });
 
   readonly passwordForm = this.fb.nonNullable.group({
     currentPassword: ['', Validators.required],
@@ -71,11 +79,6 @@ export class Profile {
       this.passwordForm.markAllAsTouched();
       return;
     }
-    if (value.newPassword !== value.confirmPassword) {
-      this.notifications.show('La confirmación no coincide con la nueva contraseña.', 'error');
-      return;
-    }
-
     this.savingPassword.set(true);
     this.users.changePassword({
       currentPassword: value.currentPassword,

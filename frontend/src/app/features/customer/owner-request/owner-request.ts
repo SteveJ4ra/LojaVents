@@ -8,6 +8,7 @@ import { NotificationService } from '../../../core/services/notification.service
 import { UserService } from '../../../core/services/user.service';
 import { StatusBadge } from '../../../shared/components/status-badge/status-badge';
 import { IdentityDocumentType, OwnerVerificationRequest } from '../../../shared/models/user.model';
+import { formatEcuadorDateTime } from '../../../shared/utils/date-time';
 
 @Component({
   selector: 'app-owner-request',
@@ -22,6 +23,8 @@ export class OwnerRequest implements OnInit {
   readonly loading = signal(true);
   readonly submitting = signal(false);
   readonly document = signal<File | null>(null);
+  readonly fileTouched = signal(false);
+  readonly fileError = signal<string | null>(null);
 
   readonly form = this.fb.nonNullable.group({
     documentType: ['CEDULA' as IdentityDocumentType, Validators.required],
@@ -48,13 +51,52 @@ export class OwnerRequest implements OnInit {
 
   fileChanged(event: Event): void {
     const input = event.target as HTMLInputElement;
-    this.document.set(input.files?.[0] ?? null);
+    const file = input.files?.[0] ?? null;
+    this.fileTouched.set(true);
+    this.fileError.set(null);
+    if (!file) {
+      this.document.set(null);
+      return;
+    }
+    if (!['application/pdf', 'image/png', 'image/jpeg'].includes(file.type) || file.size > 5 * 1024 * 1024) {
+      this.document.set(null);
+      this.fileError.set('El documento debe ser PDF, PNG o JPG y pesar hasta 5 MB.');
+      input.value = '';
+      return;
+    }
+    this.document.set(file);
+  }
+
+  documentTypeChanged(): void {
+    this.form.controls.identification.setValue('');
+    this.form.controls.identification.markAsUntouched();
+  }
+
+  sanitizeIdentification(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const type = this.form.controls.documentType.value;
+    const sanitized = type === 'CEDULA'
+      ? input.value.replace(/\D/g, '').slice(0, 10)
+      : input.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 20);
+    input.value = sanitized;
+    this.form.controls.identification.setValue(sanitized);
+  }
+
+  identificationHelp(): string {
+    return this.form.controls.documentType.value === 'CEDULA'
+      ? 'Ingresa exactamente 10 dígitos.'
+      : 'Usa entre 5 y 20 letras o números, sin espacios ni puntos.';
+  }
+
+  formatDateTime(value: string | null | undefined): string {
+    return formatEcuadorDateTime(value);
   }
 
   submit(): void {
     const document = this.document();
     if (this.form.invalid || !document || this.submitting()) {
       this.form.markAllAsTouched();
+      this.fileTouched.set(true);
       return;
     }
 

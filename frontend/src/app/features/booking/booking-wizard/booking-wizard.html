@@ -18,12 +18,12 @@
           <h2>Datos del evento</h2>
           <form [formGroup]="eventForm" novalidate>
             <small class="required-legend">Campos obligatorios</small>
-            <p class="help">Este local admite hasta <strong>{{ venue.capacity }} personas</strong>. Las reservas pueden finalizar al dia siguiente.</p>
+            <p class="help">Este local admite hasta <strong>{{ venue.capacity }} personas</strong>. Las reservas pueden finalizar al día siguiente.</p>
             <div class="form-grid">
-              <label for="booking-date"><span>Fecha *</span><input id="booking-date" type="date" [min]="minDate" formControlName="date" aria-required="true" autocomplete="off">@if (eventForm.controls.date.touched && eventForm.controls.date.invalid) { <small class="error-msg" role="alert">Selecciona la fecha del evento.</small> }</label>
-              <label for="booking-start"><span>Hora de inicio *</span><input id="booking-start" type="time" formControlName="startTime" aria-required="true">@if (eventForm.controls.startTime.touched && eventForm.controls.startTime.invalid) { <small class="error-msg" role="alert">Indica la hora de inicio.</small> }</label>
-              <label><span>Duración (horas)</span><input type="number" min="1" max="12" step="1" formControlName="durationHours"></label>
-              <label><span>Número de asistentes</span><input type="number" min="1" [max]="venue.capacity" formControlName="attendees"></label>
+              <label for="booking-date"><span>Fecha *</span><input id="booking-date" type="date" [min]="minDate" formControlName="date" aria-required="true" autocomplete="off">@if (eventForm.controls.date.touched && eventForm.controls.date.invalid) { <small class="error-msg" role="alert">Selecciona la fecha del evento.</small> } @else if (availabilityError() && availabilityErrorField() === 'date') { <small class="error-msg" role="alert">{{ availabilityError() }}</small> }</label>
+              <label for="booking-start"><span>Hora de inicio *</span><input id="booking-start" type="time" formControlName="startTime" aria-required="true">@if (eventForm.controls.startTime.touched && eventForm.controls.startTime.invalid) { <small class="error-msg" role="alert">Indica la hora de inicio.</small> } @else if (availabilityError() && availabilityErrorField() === 'time') { <small class="error-msg" role="alert">{{ availabilityError() }}</small> }</label>
+              <label for="booking-duration"><span>Duración (horas) *</span><input id="booking-duration" type="number" min="1" max="12" step="1" formControlName="durationHours" aria-required="true">@if (eventForm.controls.durationHours.touched && eventForm.controls.durationHours.hasError('required')) { <small class="error-msg" role="alert">Indica cuántas horas deseas reservar.</small> } @else if (eventForm.controls.durationHours.touched && eventForm.controls.durationHours.hasError('integer')) { <small class="error-msg" role="alert">La duración debe ser un número entero.</small> } @else if (eventForm.controls.durationHours.touched && eventForm.controls.durationHours.invalid) { <small class="error-msg" role="alert">La duración debe estar entre 1 y 12 horas.</small> }</label>
+              <label for="booking-attendees"><span>Número de asistentes *</span><input id="booking-attendees" type="number" min="1" [max]="venue.capacity" step="1" formControlName="attendees" aria-required="true">@if (eventForm.controls.attendees.touched && eventForm.controls.attendees.hasError('required')) { <small class="error-msg" role="alert">Indica el número de asistentes.</small> } @else if (eventForm.controls.attendees.touched && eventForm.controls.attendees.hasError('integer')) { <small class="error-msg" role="alert">El número de asistentes debe ser entero.</small> } @else if (eventForm.controls.attendees.touched && eventForm.controls.attendees.hasError('max')) { <small class="error-msg" role="alert">Este local admite como máximo {{ venue.capacity }} personas.</small> } @else if (eventForm.controls.attendees.touched && eventForm.controls.attendees.invalid) { <small class="error-msg" role="alert">Debe asistir al menos una persona.</small> }</label>
             </div>
             <div class="buttons">
               <button class="btn btn-primary" type="button" [disabled]="checkingAvailability()" (click)="nextFromEvent()">
@@ -38,9 +38,9 @@
           <p class="help">Estos datos se guardarán junto con la reserva y su comprobante.</p>
           <form [formGroup]="billingForm">
             <div class="form-grid">
-              <label><span>Ciudad</span><input formControlName="city"></label>
-              <label><span>Barrio</span><input formControlName="neighborhood"></label>
-              <label class="wide"><span>Calle y referencia</span><input formControlName="street"></label>
+              <label><span>Ciudad *</span><input maxlength="120" formControlName="city" aria-required="true">@if (billingForm.controls.city.touched && billingForm.controls.city.invalid) { <small class="error-msg" role="alert">Ingresa la ciudad de facturación.</small> }</label>
+              <label><span>Barrio *</span><input maxlength="120" formControlName="neighborhood" aria-required="true">@if (billingForm.controls.neighborhood.touched && billingForm.controls.neighborhood.invalid) { <small class="error-msg" role="alert">Ingresa el barrio o sector.</small> }</label>
+              <label class="wide"><span>Calle y referencia *</span><input maxlength="300" formControlName="street" aria-required="true">@if (billingForm.controls.street.touched && billingForm.controls.street.invalid) { <small class="error-msg" role="alert">Ingresa la calle y una referencia de la dirección.</small> }</label>
             </div>
             <div class="buttons"><button class="btn btn-secondary" type="button" (click)="back()">Atrás</button><button class="btn btn-primary" type="button" (click)="nextFromBilling()">Continuar</button></div>
           </form>
@@ -57,6 +57,7 @@
           <form [formGroup]="rulesForm">
             <label class="checkbox"><input type="checkbox" formControlName="acceptRules"><span>He leído y acepto las reglas del local.</span></label>
             <label class="checkbox"><input type="checkbox" formControlName="acceptCancellation"><span>Acepto la política de cancelación.</span></label>
+            @if (rulesForm.touched && rulesForm.invalid) { <small class="error-msg conditions-error" role="alert">Debes aceptar todas las condiciones para continuar.</small> }
             <div class="buttons"><button class="btn btn-secondary" type="button" (click)="back()">Atrás</button><button class="btn btn-primary" type="button" (click)="nextFromRules()">Ir al pago</button></div>
           </form>
         }
@@ -92,7 +93,7 @@
               <h2>Reserva confirmada</h2>
               <p>Tu pago fue aprobado y la reserva quedó confirmada inmediatamente.</p>
               <dl>
-                <div><dt>Código</dt><dd>{{ booking.publicReference }}</dd></div>
+                <div><dt>Referencia pública</dt><dd>{{ booking.publicReference }}</dd></div>
                 <div><dt>Referencia de pago</dt><dd>{{ booking.paymentReference }}</dd></div>
                 <div><dt>Fecha</dt><dd>{{ booking.date }} a las {{ booking.startTime }}</dd></div>
                 <div><dt>Total</dt><dd>{{ booking.total | currency:'USD' }}</dd></div>

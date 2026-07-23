@@ -13,5 +13,6 @@ import { Venue } from '../../models/venue.model';
 export class VenueCard {
   readonly venue = input.required<Venue>();
   readonly favorite = input(false);
+  readonly showFavorite = input(true);
   readonly favoriteChange = output<string>();
 }
