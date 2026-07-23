@@ -1,0 +1,24 @@
+@startuml
+title LojaVents - Máquina de estados de Reserva
+
+left to right direction
+
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam linetype ortho
+skinparam state {
+  BorderColor #64748B
+  BackgroundColor #F8FAFC
+  FontColor #172033
+  FontSize 14
+}
+skinparam ArrowColor #475569
+skinparam ArrowFontColor #172033
+skinparam ArrowFontSize 12
+
+[*] --> EN_PROCESO
+
+EN_PROCESO --> CONFIRMADA : aprobarPago(pago)
+EN_PROCESO --> RECHAZADA : rechazarPago(pago, motivo)
+
+@enduml

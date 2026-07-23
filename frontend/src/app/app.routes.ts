@@ -49,7 +49,7 @@ export const routes: Routes = [
   },
   {
     path: 'perfil',
-    canActivate: [authGuard, nonAdminGuard],
+    canActivate: [authGuard],
     loadComponent: () => import('./features/customer/profile/profile').then(m => m.Profile),
     title: 'Mi perfil | LojaVents'
   },
