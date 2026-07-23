@@ -5,7 +5,7 @@
   <div class="request-list">
     @for (request of requests(); track request.id) {
       <article>
-        <div><h2>{{ request.userFullName }}</h2><p>{{ request.userEmail }}</p><p>Identificacion: {{ request.identification }}</p><p>Documento: {{ request.documentReference }}</p><blockquote>{{ request.notes }}</blockquote><small>Enviada: {{ request.submittedAt }}</small></div>
+        <div><h2>{{ request.userFullName }}</h2><p>{{ request.userEmail }}</p><p>Identificación: {{ request.documentType || 'No especificado' }} · {{ request.identification }}</p><p>Documento: {{ request.documentReference }}</p><blockquote>{{ request.notes }}</blockquote><small>Enviada: {{ request.submittedAt }}</small></div>
         <div class="actions">@if (request.hasDocument) { <button class="btn btn-secondary" type="button" (click)="openDocument(request)">Abrir documento</button> }<button class="btn btn-primary" type="button" [disabled]="reviewingId() === request.id" (click)="approve(request)">Aprobar</button><button class="btn btn-danger" type="button" [disabled]="reviewingId() === request.id" (click)="reject(request)">Rechazar</button></div>
       </article>
     }

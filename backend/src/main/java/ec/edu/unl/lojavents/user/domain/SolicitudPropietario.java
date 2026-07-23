@@ -17,8 +17,8 @@ public class SolicitudPropietario {
     @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
 
-    @Column(nullable = false, length = 30)
-    private String identificacion;
+    @Embedded
+    private DocumentoIdentidad documentoIdentidad;
 
     @Column(name = "documento_referencia", nullable = false, length = 255)
     private String documentoReferencia;
@@ -60,6 +60,7 @@ public class SolicitudPropietario {
 
     public SolicitudPropietario(
             Usuario usuario,
+            TipoDocumentoIdentidad tipoDocumento,
             String identificacion,
             String documentoReferencia,
             String documentoArchivoId,
@@ -68,7 +69,7 @@ public class SolicitudPropietario {
             String notas
     ) {
         this.usuario = usuario;
-        this.identificacion = identificacion;
+        this.documentoIdentidad = new DocumentoIdentidad(tipoDocumento, identificacion);
         this.documentoReferencia = documentoReferencia;
         this.documentoArchivoId = documentoArchivoId;
         this.documentoNombre = documentoReferencia;
@@ -86,7 +87,15 @@ public class SolicitudPropietario {
     }
 
     public String getIdentificacion() {
-        return identificacion;
+        return documentoIdentidad.getNumero();
+    }
+
+    public TipoDocumentoIdentidad getTipoDocumento() {
+        return documentoIdentidad.getTipo();
+    }
+
+    public DocumentoIdentidad getDocumentoIdentidad() {
+        return documentoIdentidad;
     }
 
     public String getDocumentoReferencia() {

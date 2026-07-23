@@ -8,6 +8,7 @@ import ec.edu.unl.lojavents.user.domain.Rol;
 import ec.edu.unl.lojavents.user.domain.Usuario;
 import ec.edu.unl.lojavents.user.repository.UsuarioRepository;
 import ec.edu.unl.lojavents.venue.domain.LocalEvento;
+import ec.edu.unl.lojavents.venue.domain.EstadoPublicacionLocal;
 import ec.edu.unl.lojavents.venue.repository.LocalEventoRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -142,16 +143,18 @@ public class DemoDataInitializer {
             ReservaRepository reservaRepository
     ) {
         LocalDate today = LocalDate.now(LOJA_ZONE);
-        boolean alreadyExists = reservaRepository.existsByCliente_IdAndEstadoAndFechaBefore(
+        boolean alreadyExists = reservaRepository.existsByCliente_IdAndEstadoAndPeriodo_FechaBefore(
                 client.getId(),
-                EstadoReserva.COMPLETADA,
+                EstadoReserva.CONFIRMADA,
                 today
         );
         if (alreadyExists) {
             return;
         }
 
-        localRepository.findByActivoTrueOrderByDestacadoDescNombreAsc().stream()
+        localRepository.findByEstadoPublicacionOrderByDestacadoDescNombreAsc(
+                        EstadoPublicacionLocal.PUBLICADO
+                ).stream()
                 .findFirst()
                 .ifPresent(venue -> {
                     int duration = 4;
@@ -220,6 +223,8 @@ public class DemoDataInitializer {
         );
         local.configurarDestacado(featured);
         local.configurarCalificacion(BigDecimal.ZERO, 0);
+        local.solicitarRevision();
+        local.aprobarRevision();
         return local;
     }
 }

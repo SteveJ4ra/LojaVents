@@ -19,7 +19,7 @@ export class StatusBadge {
   readonly label = computed(() => this.status().replaceAll('_', ' '));
   readonly cssClass = computed(() => {
     const status = this.status();
-    if (['COMPLETADA', 'ACTIVO', 'APROBADA'].includes(status)) return 'success';
+    if (['CONFIRMADA', 'ACTIVO', 'APROBADA'].includes(status)) return 'success';
     if (['PENDIENTE', 'EN_PROCESO'].includes(status)) return 'warning';
     if (['RECHAZADA', 'SUSPENDIDO', 'CANCELADA'].includes(status)) return 'danger';
     if (['INACTIVO', 'NO_SOLICITADA'].includes(status)) return 'neutral';

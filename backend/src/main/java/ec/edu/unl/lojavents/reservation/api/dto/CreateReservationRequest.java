@@ -1,5 +1,6 @@
 package ec.edu.unl.lojavents.reservation.api.dto;
 
+import ec.edu.unl.lojavents.reservation.domain.PeriodoReserva;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Max;
@@ -14,7 +15,9 @@ public record CreateReservationRequest(
         @NotNull UUID venueId,
         @NotNull LocalDate date,
         @NotNull LocalTime startTime,
-        @Min(1) @Max(12) int durationHours,
+        @Min(PeriodoReserva.DURACION_MINIMA_HORAS)
+        @Max(PeriodoReserva.DURACION_MAXIMA_HORAS)
+        int durationHours,
         @Min(1) @Max(10000) int attendees,
         @NotNull @Valid BillingAddressRequest billingAddress,
         @AssertTrue(message = "Debes aceptar las reglas del local.") boolean acceptedRules,

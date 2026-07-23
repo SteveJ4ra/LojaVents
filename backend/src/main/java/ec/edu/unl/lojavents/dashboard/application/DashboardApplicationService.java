@@ -70,7 +70,7 @@ public class DashboardApplicationService {
                 venues.stream().filter(LocalEvento::isActivo).count(),
                 venues.stream().filter(venue -> !venue.isActivo()).count(),
                 reservations.size(),
-                countByStatus(reservations, EstadoReserva.COMPLETADA),
+                countByStatus(reservations, EstadoReserva.CONFIRMADA),
                 countByStatus(reservations, EstadoReserva.RECHAZADA),
                 countByStatus(reservations, EstadoReserva.CANCELADA),
                 sumApprovedTotal(reservations),
@@ -93,7 +93,7 @@ public class DashboardApplicationService {
         LocalDate today = LocalDate.now();
 
         List<Reserva> upcoming = reservations.stream()
-                .filter(item -> item.getEstado() == EstadoReserva.COMPLETADA)
+                .filter(item -> item.getEstado() == EstadoReserva.CONFIRMADA)
                 .filter(item -> !item.getFecha().isBefore(today))
                 .sorted(Comparator.comparing(Reserva::getFecha)
                         .thenComparing(Reserva::getHoraInicio))
@@ -113,7 +113,7 @@ public class DashboardApplicationService {
                 venues.size(),
                 venues.stream().filter(LocalEvento::isActivo).count(),
                 reservations.size(),
-                countByStatus(reservations, EstadoReserva.COMPLETADA),
+                countByStatus(reservations, EstadoReserva.CONFIRMADA),
                 countByStatus(reservations, EstadoReserva.RECHAZADA),
                 upcoming.size(),
                 sumApprovedTotal(reservations),
@@ -138,14 +138,14 @@ public class DashboardApplicationService {
 
     private BigDecimal sumApprovedTotal(List<Reserva> reservations) {
         return reservations.stream()
-                .filter(item -> item.getEstado() == EstadoReserva.COMPLETADA)
+                .filter(item -> item.getEstado() == EstadoReserva.CONFIRMADA)
                 .map(Reserva::getTotal)
                 .reduce(ZERO, BigDecimal::add);
     }
 
     private BigDecimal sumApprovedServiceFee(List<Reserva> reservations) {
         return reservations.stream()
-                .filter(item -> item.getEstado() == EstadoReserva.COMPLETADA)
+                .filter(item -> item.getEstado() == EstadoReserva.CONFIRMADA)
                 .map(Reserva::getTarifaServicio)
                 .reduce(ZERO, BigDecimal::add);
     }
@@ -191,7 +191,7 @@ public class DashboardApplicationService {
                             venue.getId(),
                             venue.getNombre(),
                             items.size(),
-                            countByStatus(items, EstadoReserva.COMPLETADA),
+                            countByStatus(items, EstadoReserva.CONFIRMADA),
                             countByStatus(items, EstadoReserva.RECHAZADA),
                             sumApprovedTotal(items),
                             venue.getCalificacion()

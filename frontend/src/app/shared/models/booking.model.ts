@@ -1,4 +1,4 @@
-export type BookingStatus = 'EN_PROCESO' | 'COMPLETADA' | 'RECHAZADA' | 'CANCELADA';
+export type BookingStatus = 'EN_PROCESO' | 'CONFIRMADA' | 'RECHAZADA' | 'CANCELADA';
 export type PaymentStatus = 'APROBADO' | 'RECHAZADO';
 export type PaymentSimulationMode = 'APPROVE' | 'REJECT_FUNDS' | 'REJECT_PROVIDER' | 'REJECT_APPLICATION';
 
@@ -10,6 +10,7 @@ export interface BillingAddress {
 
 export interface Booking {
   id: string;
+  publicReference: string;
   userId: string;
   userName: string;
   userEmail: string;

@@ -191,6 +191,7 @@ const pastDate = new Date(now.getFullYear(), now.getMonth() - 1, 8).toISOString(
 export const MOCK_BOOKINGS: Booking[] = [
   {
     id: 'booking-1',
+    publicReference: 'LV-11111111111111111111111111111111',
     userId: 'u-client',
     userName: 'María Cliente',
     userEmail: 'cliente@lojavents.ec',
@@ -204,7 +205,7 @@ export const MOCK_BOOKINGS: Booking[] = [
     subtotal: 325,
     serviceFee: 26,
     total: 351,
-    status: 'COMPLETADA',
+    status: 'CONFIRMADA',
     paymentReference: 'SIM-LOJA-1001',
     createdAt: '2026-06-12T16:00:00Z',
     updatedAt: '2026-06-12T16:00:00Z',
@@ -212,6 +213,7 @@ export const MOCK_BOOKINGS: Booking[] = [
   },
   {
     id: 'booking-2',
+    publicReference: 'LV-22222222222222222222222222222222',
     userId: 'u-client',
     userName: 'María Cliente',
     userEmail: 'cliente@lojavents.ec',
@@ -225,7 +227,7 @@ export const MOCK_BOOKINGS: Booking[] = [
     subtotal: 126,
     serviceFee: 10.08,
     total: 136.08,
-    status: 'COMPLETADA',
+    status: 'CONFIRMADA',
     paymentReference: 'SIM-LOJA-0998',
     createdAt: '2026-05-01T11:00:00Z',
     updatedAt: '2026-05-01T11:00:00Z',
@@ -262,6 +264,7 @@ export const MOCK_OWNER_REQUESTS: OwnerVerificationRequest[] = [
     userId: 'u-pending',
     userFullName: 'Andrea Torres',
     userEmail: 'andrea@example.com',
+    documentType: 'CEDULA',
     identification: '1100000000',
     documentReference: 'documento-identidad-andrea.pdf',
     hasDocument: false,

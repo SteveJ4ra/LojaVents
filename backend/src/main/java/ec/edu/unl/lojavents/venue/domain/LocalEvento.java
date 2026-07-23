@@ -32,11 +32,8 @@ public class LocalEvento {
     @Column(nullable = false, columnDefinition = "text")
     private String descripcion;
 
-    @Column(nullable = false, length = 120)
-    private String sector;
-
-    @Column(nullable = false, length = 240)
-    private String direccion;
+    @Embedded
+    private DireccionLocal direccionLocal;
 
     @Column(name = "precio_hora", nullable = false, precision = 10, scale = 2)
     private BigDecimal precioHora;
@@ -53,11 +50,9 @@ public class LocalEvento {
     @Column(nullable = false)
     private boolean destacado;
 
-    @Column(nullable = false)
-    private boolean activo = true;
-
-    @Column(name = "pendiente_revision", nullable = false)
-    private boolean pendienteRevision;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "estado_publicacion", nullable = false, length = 30)
+    private EstadoPublicacionLocal estadoPublicacion = EstadoPublicacionLocal.INACTIVO;
 
     @Column(name = "politica_cancelacion", nullable = false, columnDefinition = "text")
     private String politicaCancelacion;
@@ -118,8 +113,7 @@ public class LocalEvento {
         this.nombre = nombre;
         this.descripcionCorta = descripcionCorta;
         this.descripcion = descripcion;
-        this.sector = sector;
-        this.direccion = direccion;
+        this.direccionLocal = new DireccionLocal(sector, direccion);
         this.precioHora = precioHora;
         this.capacidad = capacidad;
         this.tiposEvento.clear();
@@ -134,23 +128,21 @@ public class LocalEvento {
         this.actualizadoEn = OffsetDateTime.now();
     }
 
-    public void cambiarEstado(boolean activo) {
-        this.activo = activo;
-        if (!activo) {
-            this.pendienteRevision = false;
-        }
+    public void desactivar() {
+        this.estadoPublicacion = EstadoPublicacionLocal.INACTIVO;
         this.actualizadoEn = OffsetDateTime.now();
     }
 
     public void solicitarRevision() {
-        this.activo = false;
-        this.pendienteRevision = true;
+        this.estadoPublicacion = EstadoPublicacionLocal.PENDIENTE_REVISION;
         this.actualizadoEn = OffsetDateTime.now();
     }
 
     public void aprobarRevision() {
-        this.activo = true;
-        this.pendienteRevision = false;
+        if (estadoPublicacion != EstadoPublicacionLocal.PENDIENTE_REVISION) {
+            throw new IllegalStateException("Solo se puede publicar un local pendiente de revision.");
+        }
+        this.estadoPublicacion = EstadoPublicacionLocal.PUBLICADO;
         this.actualizadoEn = OffsetDateTime.now();
     }
 
@@ -198,11 +190,15 @@ public class LocalEvento {
     }
 
     public String getSector() {
-        return sector;
+        return direccionLocal.getSector();
     }
 
     public String getDireccion() {
-        return direccion;
+        return direccionLocal.getDireccion();
+    }
+
+    public DireccionLocal getDireccionLocal() {
+        return direccionLocal;
     }
 
     public BigDecimal getPrecioHora() {
@@ -226,11 +222,15 @@ public class LocalEvento {
     }
 
     public boolean isActivo() {
-        return activo;
+        return estadoPublicacion == EstadoPublicacionLocal.PUBLICADO;
     }
 
     public boolean isPendienteRevision() {
-        return pendienteRevision;
+        return estadoPublicacion == EstadoPublicacionLocal.PENDIENTE_REVISION;
+    }
+
+    public EstadoPublicacionLocal getEstadoPublicacion() {
+        return estadoPublicacion;
     }
 
     public String getPoliticaCancelacion() {

@@ -57,6 +57,8 @@ public class CatalogDemoInitializer {
                 String type = switch (index % 5) { case 0 -> "Bodas"; case 1 -> "Quinceaños"; case 2 -> "Graduaciones"; case 3 -> "Corporativo"; default -> "Cumpleaños"; };
                 venue.actualizar(name, "Espacio para " + type.toLowerCase() + " y celebraciones en Loja.", "Local equipado para eventos sociales, familiares y corporativos.", "Loja", "Sector " + (index + 1) + ", Loja", BigDecimal.valueOf(30 + (index % 9) * 8L), 40 + (index % 8) * 25, new LinkedHashSet<>(List.of(type, "Eventos sociales")), new LinkedHashSet<>(List.of("Estacionamiento", "Wi-Fi", "Sonido")), List.of("Respetar el aforo", "Cuidar las instalaciones"), "Consulta las condiciones de cancelacion antes de reservar.", List.of(imageUrl(media, index)));
                 venue.configurarDestacado(index < 8);
+                venue.solicitarRevision();
+                venue.aprobarRevision();
                 venues.save(venue);
             }
             List<LocalEvento> allVenues = venues.findAllByOrderByCreadoEnDesc();

@@ -2,6 +2,10 @@ spring:
   application:
     name: lojavents-backend
 
+  jackson:
+    deserialization:
+      accept-float-as-int: false
+
   datasource:
     url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:lojavents}
     username: ${POSTGRES_USER:lojavents}

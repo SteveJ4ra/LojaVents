@@ -132,6 +132,7 @@ public class UserAccountApplicationService {
     @Transactional
     public OwnerRequestResponse submitOwnerRequest(
             String subject,
+            TipoDocumentoIdentidad documentType,
             String identification,
             String notes,
             StoredFile document
@@ -155,6 +156,7 @@ public class UserAccountApplicationService {
 
         SolicitudPropietario solicitud = new SolicitudPropietario(
                 usuario,
+                documentType,
                 identification.trim(),
                 document.fileName(),
                 document.id(),

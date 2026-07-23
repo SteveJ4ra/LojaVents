@@ -1,7 +1,7 @@
 import { CurrencyPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
@@ -34,7 +34,7 @@ export class BookingWizard {
   readonly eventForm = this.fb.nonNullable.group({
     date: ['', Validators.required],
     startTime: ['16:00', Validators.required],
-    durationHours: [3, [Validators.required, Validators.min(1), Validators.max(12)]],
+    durationHours: [3, [Validators.required, Validators.min(1), Validators.max(12), integerValidator()]],
     attendees: [20, [Validators.required, Validators.min(1)]]
   });
 
@@ -150,7 +150,7 @@ export class BookingWizard {
       }
 
       const booking = await firstValueFrom(this.payments.process(reservationId, mode));
-      if (booking.status === 'COMPLETADA') {
+      if (booking.status === 'CONFIRMADA') {
         this.result.set(booking);
         this.step.set(5);
       } else {
@@ -171,4 +171,9 @@ export class BookingWizard {
     }
     return 'No fue posible completar la solicitud.';
   }
+}
+
+export function integerValidator(): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null =>
+    Number.isInteger(Number(control.value)) ? null : { integer: true };
 }

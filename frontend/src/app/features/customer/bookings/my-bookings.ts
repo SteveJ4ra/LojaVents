@@ -42,7 +42,7 @@ export class MyBookings {
   }
 
   canReview(booking: Booking): boolean {
-    return booking.status === 'COMPLETADA'
+    return booking.status === 'CONFIRMADA'
       && booking.date < new Date().toISOString().slice(0, 10)
       && !booking.reviewSubmitted;
   }

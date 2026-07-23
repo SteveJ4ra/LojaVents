@@ -1,13 +1,13 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { UserService } from '../../../core/services/user.service';
 import { StatusBadge } from '../../../shared/components/status-badge/status-badge';
-import { OwnerVerificationRequest } from '../../../shared/models/user.model';
+import { IdentityDocumentType, OwnerVerificationRequest } from '../../../shared/models/user.model';
 
 @Component({
   selector: 'app-owner-request',
@@ -24,9 +24,10 @@ export class OwnerRequest implements OnInit {
   readonly document = signal<File | null>(null);
 
   readonly form = this.fb.nonNullable.group({
-    identification: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(30)]],
+    documentType: ['CEDULA' as IdentityDocumentType, Validators.required],
+    identification: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(20)]],
     notes: ['', [Validators.required, Validators.minLength(15), Validators.maxLength(1200)]]
-  });
+  }, { validators: identityDocumentValidator() });
 
   constructor(
     private readonly fb: FormBuilder,
@@ -59,7 +60,7 @@ export class OwnerRequest implements OnInit {
 
     this.submitting.set(true);
     const value = this.form.getRawValue();
-    this.users.submitOwnerRequest(value.identification, value.notes, document).pipe(
+    this.users.submitOwnerRequest(value.documentType, value.identification, value.notes, document).pipe(
       finalize(() => this.submitting.set(false))
     ).subscribe({
       next: request => {
@@ -75,4 +76,19 @@ export class OwnerRequest implements OnInit {
     const httpError = error as HttpErrorResponse;
     return httpError.error?.detail ?? 'No fue posible procesar la solicitud.';
   }
+}
+
+export function identityDocumentValidator(): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    const type = control.get('documentType')?.value as IdentityDocumentType | undefined;
+    const number = String(control.get('identification')?.value ?? '').trim().toUpperCase();
+    if (!type || !number) return null;
+
+    const valid = type === 'CEDULA'
+      ? /^[0-9]{10}$/.test(number)
+      : type === 'PASAPORTE'
+        ? /^[A-Z0-9]{6,20}$/.test(number)
+        : /^[A-Z0-9]{5,20}$/.test(number);
+    return valid ? null : { invalidIdentityDocument: true };
+  };
 }

@@ -22,7 +22,7 @@
             <div class="form-grid">
               <label for="booking-date"><span>Fecha *</span><input id="booking-date" type="date" [min]="minDate" formControlName="date" aria-required="true" autocomplete="off">@if (eventForm.controls.date.touched && eventForm.controls.date.invalid) { <small class="error-msg" role="alert">Selecciona la fecha del evento.</small> }</label>
               <label for="booking-start"><span>Hora de inicio *</span><input id="booking-start" type="time" formControlName="startTime" aria-required="true">@if (eventForm.controls.startTime.touched && eventForm.controls.startTime.invalid) { <small class="error-msg" role="alert">Indica la hora de inicio.</small> }</label>
-              <label><span>Duración (horas)</span><input type="number" min="1" max="12" formControlName="durationHours"></label>
+              <label><span>Duración (horas)</span><input type="number" min="1" max="12" step="1" formControlName="durationHours"></label>
               <label><span>Número de asistentes</span><input type="number" min="1" [max]="venue.capacity" formControlName="attendees"></label>
             </div>
             <div class="buttons">
@@ -72,7 +72,7 @@
                 <strong>Resultado rechazado</strong>
                 <span>{{ error() }}</span>
                 @if (rejectedResult(); as rejected) {
-                  <small>Reserva {{ rejected.id }} · Referencia {{ rejected.paymentReference }}</small>
+                  <small>Reserva {{ rejected.publicReference }} · Referencia {{ rejected.paymentReference }}</small>
                 }
               </div>
             }
@@ -90,9 +90,9 @@
             <div class="confirmation">
               <div class="check">✓</div>
               <h2>Reserva confirmada</h2>
-              <p>Tu pago fue aprobado y la reserva quedó completada inmediatamente.</p>
+              <p>Tu pago fue aprobado y la reserva quedó confirmada inmediatamente.</p>
               <dl>
-                <div><dt>Código</dt><dd>{{ booking.id }}</dd></div>
+                <div><dt>Código</dt><dd>{{ booking.publicReference }}</dd></div>
                 <div><dt>Referencia de pago</dt><dd>{{ booking.paymentReference }}</dd></div>
                 <div><dt>Fecha</dt><dd>{{ booking.date }} a las {{ booking.startTime }}</dd></div>
                 <div><dt>Total</dt><dd>{{ booking.total | currency:'USD' }}</dd></div>

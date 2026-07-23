@@ -26,35 +26,20 @@ public class Reserva {
     @JoinColumn(name = "local_id", nullable = false)
     private LocalEvento local;
 
-    @Column(nullable = false)
-    private LocalDate fecha;
-
-    @Column(name = "hora_inicio", nullable = false)
-    private LocalTime horaInicio;
-
-    @Column(name = "duracion_horas", nullable = false)
-    private int duracionHoras;
+    @Embedded
+    private PeriodoReserva periodo;
 
     @Column(nullable = false)
     private int asistentes;
 
-    @Column(name = "ciudad_facturacion", nullable = false, length = 120)
-    private String ciudadFacturacion;
+    @Embedded
+    private DatosFacturacion datosFacturacion;
 
-    @Column(name = "sector_facturacion", nullable = false, length = 120)
-    private String sectorFacturacion;
+    @Embedded
+    private ImporteReserva importe;
 
-    @Column(name = "direccion_facturacion", nullable = false, length = 300)
-    private String direccionFacturacion;
-
-    @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal subtotal;
-
-    @Column(name = "tarifa_servicio", nullable = false, precision = 10, scale = 2)
-    private BigDecimal tarifaServicio;
-
-    @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal total;
+    @Embedded
+    private ReferenciaPublicaReserva referenciaPublica;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
@@ -106,23 +91,22 @@ public class Reserva {
     ) {
         this.cliente = cliente;
         this.local = local;
-        this.fecha = fecha;
-        this.horaInicio = horaInicio;
-        this.duracionHoras = duracionHoras;
+        this.periodo = new PeriodoReserva(fecha, horaInicio, duracionHoras);
         this.asistentes = asistentes;
-        this.ciudadFacturacion = ciudadFacturacion;
-        this.sectorFacturacion = sectorFacturacion;
-        this.direccionFacturacion = direccionFacturacion;
-        this.subtotal = subtotal;
-        this.tarifaServicio = tarifaServicio;
-        this.total = total;
+        this.datosFacturacion = new DatosFacturacion(
+                ciudadFacturacion,
+                sectorFacturacion,
+                direccionFacturacion
+        );
+        this.importe = new ImporteReserva(subtotal, tarifaServicio, total);
+        this.referenciaPublica = ReferenciaPublicaReserva.generar();
         this.reglasAceptadas = reglasAceptadas;
         this.cancelacionAceptada = cancelacionAceptada;
     }
 
     public void aprobarPago(PagoSimulado pago) {
         asignarPago(pago);
-        this.estado = EstadoReserva.COMPLETADA;
+        this.estado = EstadoReserva.CONFIRMADA;
         this.motivoRechazo = null;
         this.actualizadoEn = OffsetDateTime.now();
     }
@@ -152,15 +136,19 @@ public class Reserva {
     }
 
     public LocalDate getFecha() {
-        return fecha;
+        return periodo.getFecha();
     }
 
     public LocalTime getHoraInicio() {
-        return horaInicio;
+        return periodo.getHoraInicio();
     }
 
     public int getDuracionHoras() {
-        return duracionHoras;
+        return periodo.getDuracionHoras();
+    }
+
+    public PeriodoReserva getPeriodo() {
+        return periodo;
     }
 
     public int getAsistentes() {
@@ -168,27 +156,39 @@ public class Reserva {
     }
 
     public String getCiudadFacturacion() {
-        return ciudadFacturacion;
+        return datosFacturacion.getCiudad();
     }
 
     public String getSectorFacturacion() {
-        return sectorFacturacion;
+        return datosFacturacion.getSector();
     }
 
     public String getDireccionFacturacion() {
-        return direccionFacturacion;
+        return datosFacturacion.getDireccion();
+    }
+
+    public DatosFacturacion getDatosFacturacion() {
+        return datosFacturacion;
     }
 
     public BigDecimal getSubtotal() {
-        return subtotal;
+        return importe.getSubtotal();
     }
 
     public BigDecimal getTarifaServicio() {
-        return tarifaServicio;
+        return importe.getTarifaServicio();
     }
 
     public BigDecimal getTotal() {
-        return total;
+        return importe.getTotal();
+    }
+
+    public ImporteReserva getImporte() {
+        return importe;
+    }
+
+    public ReferenciaPublicaReserva getReferenciaPublica() {
+        return referenciaPublica;
     }
 
     public EstadoReserva getEstado() {

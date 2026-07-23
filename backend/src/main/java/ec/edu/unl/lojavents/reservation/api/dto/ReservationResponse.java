@@ -11,6 +11,7 @@ import java.util.UUID;
 
 public record ReservationResponse(
         UUID id,
+        String publicReference,
         UUID userId,
         String userName,
         String userEmail,
@@ -38,6 +39,7 @@ public record ReservationResponse(
         PagoSimulado pago = reserva.getPago();
         return new ReservationResponse(
                 reserva.getId(),
+                reserva.getReferenciaPublica().getValor(),
                 reserva.getCliente().getId(),
                 reserva.getCliente().getNombres(),
                 reserva.getCliente().getEmail(),

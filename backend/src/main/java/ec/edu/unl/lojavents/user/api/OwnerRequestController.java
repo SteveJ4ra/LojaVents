@@ -2,6 +2,8 @@ package ec.edu.unl.lojavents.user.api;
 
 import ec.edu.unl.lojavents.user.api.dto.OwnerRequestResponse;
 import ec.edu.unl.lojavents.user.application.UserAccountApplicationService;
+import ec.edu.unl.lojavents.user.domain.DocumentoIdentidad;
+import ec.edu.unl.lojavents.user.domain.TipoDocumentoIdentidad;
 import ec.edu.unl.lojavents.storage.MediaStorageService;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -36,10 +38,18 @@ public class OwnerRequestController {
     @ResponseStatus(HttpStatus.CREATED)
     public OwnerRequestResponse submit(
             @AuthenticationPrincipal Jwt jwt,
-            @RequestParam @NotBlank @Size(min = 10, max = 30) String identification,
+            @RequestParam TipoDocumentoIdentidad documentType,
+            @RequestParam @NotBlank @Size(min = 5, max = 20) String identification,
             @RequestParam @NotBlank @Size(min = 15, max = 1200) String notes,
             @RequestParam("document") MultipartFile document
     ) {
-        return service.submitOwnerRequest(jwt.getSubject(), identification, notes, storage.storeOwnerDocument(document));
+        new DocumentoIdentidad(documentType, identification);
+        return service.submitOwnerRequest(
+                jwt.getSubject(),
+                documentType,
+                identification,
+                notes,
+                storage.storeOwnerDocument(document)
+        );
     }
 }

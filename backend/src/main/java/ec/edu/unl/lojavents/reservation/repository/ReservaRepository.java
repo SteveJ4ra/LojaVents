@@ -36,7 +36,7 @@ public interface ReservaRepository extends JpaRepository<Reserva, UUID> {
     @Query("""
             select r from Reserva r
             where r.local.id = :localId
-              and r.fecha = :date
+              and r.periodo.fecha = :date
               and r.estado = :status
             """)
     List<Reserva> findByVenueDateAndStatus(
@@ -48,7 +48,7 @@ public interface ReservaRepository extends JpaRepository<Reserva, UUID> {
     @Query("""
             select r from Reserva r
             where r.local.id = :localId
-              and r.fecha in :dates
+              and r.periodo.fecha in :dates
               and r.estado = :status
             """)
     List<Reserva> findByVenueDatesAndStatus(
@@ -57,7 +57,7 @@ public interface ReservaRepository extends JpaRepository<Reserva, UUID> {
             @Param("status") EstadoReserva status
     );
 
-    boolean existsByCliente_IdAndEstadoAndFechaBefore(
+    boolean existsByCliente_IdAndEstadoAndPeriodo_FechaBefore(
             UUID clienteId,
             EstadoReserva estado,
             LocalDate fecha

@@ -8,7 +8,8 @@
           <div class="main">
             <div class="row"><h2>{{ venueName(booking) }}</h2><app-status-badge [status]="booking.status" /></div>
             <p>{{ booking.date | date:'longDate' }} · {{ booking.startTime }} · {{ booking.durationHours }} horas</p>
-            <p>{{ booking.attendees }} asistentes · Referencia: {{ booking.paymentReference || 'Pendiente' }}</p>
+            <p>{{ booking.attendees }} asistentes · Reserva: {{ booking.publicReference }}</p>
+            <p>Referencia de pago: {{ booking.paymentReference || 'Pendiente' }}</p>
             @if (booking.rejectionReason) { <p class="rejection">{{ booking.rejectionReason }}</p> }
           </div>
           <div class="amount">

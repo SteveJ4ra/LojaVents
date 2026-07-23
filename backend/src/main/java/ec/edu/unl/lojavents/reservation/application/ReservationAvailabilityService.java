@@ -3,6 +3,7 @@ package ec.edu.unl.lojavents.reservation.application;
 import ec.edu.unl.lojavents.common.api.ApiException;
 import ec.edu.unl.lojavents.reservation.api.dto.AvailabilityResponse;
 import ec.edu.unl.lojavents.reservation.domain.EstadoReserva;
+import ec.edu.unl.lojavents.reservation.domain.PeriodoReserva;
 import ec.edu.unl.lojavents.reservation.domain.Reserva;
 import ec.edu.unl.lojavents.reservation.repository.ReservaRepository;
 import ec.edu.unl.lojavents.venue.domain.BloqueDisponibilidad;
@@ -76,7 +77,8 @@ public class ReservationAvailabilityService {
         if (!local.isActivo()) {
             return AvailabilityResponse.unavailable("El local no está disponible para reservas.");
         }
-        if (durationHours < 1 || durationHours > 12) {
+        if (durationHours < PeriodoReserva.DURACION_MINIMA_HORAS
+                || durationHours > PeriodoReserva.DURACION_MAXIMA_HORAS) {
             return AvailabilityResponse.unavailable("La duración debe estar entre 1 y 12 horas.");
         }
 
@@ -90,6 +92,7 @@ public class ReservationAvailabilityService {
 
         int requestedStart = toMinutes(startTime);
         int requestedEnd = requestedStart + durationHours * 60;
+        PeriodoReserva requestedPeriod = new PeriodoReserva(date, startTime, durationHours);
         if (requestedEnd > 36 * 60) {
             return AvailabilityResponse.unavailable("La reserva no puede terminar después de medianoche.");
         }
@@ -108,15 +111,11 @@ public class ReservationAvailabilityService {
         List<Reserva> confirmed = reservaRepository.findByVenueDatesAndStatus(
                 local.getId(),
                 List.of(date.minusDays(1), date, date.plusDays(1)),
-                EstadoReserva.COMPLETADA
+                EstadoReserva.CONFIRMADA
         );
-        boolean reserved = confirmed.stream().anyMatch(existing -> overlaps(
-                requestedStart,
-                requestedEnd,
-                relativeMinutes(date, existing.getFecha(), existing.getHoraInicio()),
-                relativeMinutes(date, existing.getFecha(), existing.getHoraInicio())
-                        + existing.getDuracionHoras() * 60
-        ));
+        boolean reserved = confirmed.stream()
+                .map(Reserva::getPeriodo)
+                .anyMatch(requestedPeriod::seSolapaCon);
         if (reserved) {
             return AvailabilityResponse.unavailable("Ese horario ya fue reservado por otro cliente.");
         }

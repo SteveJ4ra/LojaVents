@@ -39,4 +39,15 @@ public class GlobalExceptionHandler {
         problem.setProperty("fields", fields);
         return problem;
     }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    ProblemDetail handleDomainValidation(IllegalArgumentException exception) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST,
+                exception.getMessage()
+        );
+        problem.setTitle("Datos invalidos");
+        problem.setProperty("code", "DOMAIN_VALIDATION_ERROR");
+        return problem;
+    }
 }

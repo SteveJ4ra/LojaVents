@@ -15,7 +15,7 @@ export class OwnerBookings {
   readonly bookings = computed(() => this.bookingService.ownerBookings());
   readonly approvedIncome = computed(() =>
     this.bookings()
-      .filter(item => item.status === 'COMPLETADA')
+      .filter(item => item.status === 'CONFIRMADA')
       .reduce((sum, item) => sum + item.total, 0)
   );
 

@@ -2,6 +2,7 @@ export type UserRole = 'CLIENTE' | 'PROPIETARIO' | 'ADMINISTRADOR';
 export type UserStatus = 'ACTIVO' | 'SUSPENDIDO' | 'INACTIVO';
 export type OwnerVerificationStatus = 'NO_SOLICITADA' | 'PENDIENTE' | 'APROBADA' | 'RECHAZADA';
 export type OwnerRequestDecision = 'APROBAR' | 'RECHAZAR';
+export type IdentityDocumentType = 'CEDULA' | 'PASAPORTE' | 'LICENCIA_CONDUCIR';
 
 export interface User {
   id: string;
@@ -48,6 +49,7 @@ export interface OwnerVerificationRequest {
   userId: string;
   userFullName: string;
   userEmail: string;
+  documentType: IdentityDocumentType | null;
   identification: string;
   documentReference: string;
   hasDocument: boolean;

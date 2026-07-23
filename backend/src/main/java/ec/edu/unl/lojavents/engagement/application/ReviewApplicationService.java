@@ -70,11 +70,11 @@ public class ReviewApplicationService {
                         "La reserva no existe o no pertenece al usuario autenticado."
                 ));
 
-        if (reservation.getEstado() != EstadoReserva.COMPLETADA) {
+        if (reservation.getEstado() != EstadoReserva.CONFIRMADA) {
             throw new ApiException(
                     HttpStatus.CONFLICT,
                     "RESERVATION_NOT_COMPLETED",
-                    "Solo se puede reseñar una reserva completada."
+                    "Solo se puede reseñar una reserva confirmada."
             );
         }
 

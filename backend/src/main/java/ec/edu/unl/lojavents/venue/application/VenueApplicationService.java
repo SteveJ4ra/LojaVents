@@ -7,6 +7,7 @@ import ec.edu.unl.lojavents.user.domain.Usuario;
 import ec.edu.unl.lojavents.user.repository.UsuarioRepository;
 import ec.edu.unl.lojavents.venue.api.dto.*;
 import ec.edu.unl.lojavents.venue.domain.BloqueDisponibilidad;
+import ec.edu.unl.lojavents.venue.domain.EstadoPublicacionLocal;
 import ec.edu.unl.lojavents.venue.domain.LocalEvento;
 import ec.edu.unl.lojavents.venue.repository.LocalEventoRepository;
 import org.springframework.http.HttpStatus;
@@ -45,7 +46,7 @@ public class VenueApplicationService {
         String normalizedText = normalize(text);
         String normalizedType = normalize(eventType);
 
-        return localRepository.findByActivoTrueOrderByDestacadoDescNombreAsc().stream()
+        return publicVenues().stream()
                 .filter(local -> normalizedText == null || matchesText(local, normalizedText))
                 .filter(local -> normalizedType == null || local.getTiposEvento().stream()
                         .map(this::normalize)
@@ -69,7 +70,7 @@ public class VenueApplicationService {
 
     @Transactional(readOnly = true)
     public List<String> eventTypes() {
-        return localRepository.findByActivoTrueOrderByDestacadoDescNombreAsc().stream()
+        return publicVenues().stream()
                 .flatMap(local -> local.getTiposEvento().stream())
                 .distinct()
                 .sorted(String.CASE_INSENSITIVE_ORDER)
@@ -127,7 +128,7 @@ public class VenueApplicationService {
         if (request.active()) {
             local.solicitarRevision();
         } else {
-            local.cambiarEstado(false);
+            local.desactivar();
         }
         localRepository.save(local);
 
@@ -178,9 +179,16 @@ public class VenueApplicationService {
         UUID adminId = parseSubject(subject);
         LocalEvento local = findDetailed(id);
         if (request.active()) {
+            if (local.getEstadoPublicacion() != EstadoPublicacionLocal.PENDIENTE_REVISION) {
+                throw new ApiException(
+                        HttpStatus.CONFLICT,
+                        "VENUE_NOT_PENDING_REVIEW",
+                        "Solo se puede publicar un local pendiente de revision."
+                );
+            }
             local.aprobarRevision();
         } else {
-            local.cambiarEstado(false);
+            local.desactivar();
         }
         localRepository.save(local);
 
@@ -241,6 +249,12 @@ public class VenueApplicationService {
                 ).stream().map(this::normalize).anyMatch(value -> value != null && value.contains(text))
                 || local.getTiposEvento().stream().map(this::normalize)
                 .anyMatch(value -> value != null && value.contains(text));
+    }
+
+    private List<LocalEvento> publicVenues() {
+        return localRepository.findByEstadoPublicacionOrderByDestacadoDescNombreAsc(
+                EstadoPublicacionLocal.PUBLICADO
+        );
     }
 
     private LocalEvento requireOwnerVenue(String subject, UUID id) {

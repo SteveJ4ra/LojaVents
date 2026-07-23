@@ -3,6 +3,7 @@ import { Injectable, signal } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
+  IdentityDocumentType,
   OwnerRequestReviewRequest,
   OwnerVerificationRequest,
   PasswordChangeRequest,
@@ -61,8 +62,9 @@ export class UserService {
     return this.http.get<OwnerVerificationRequest | null>(`${this.ownerRequestUrl}/me`);
   }
 
-  submitOwnerRequest(identification: string, notes: string, document: File): Observable<OwnerVerificationRequest> {
+  submitOwnerRequest(documentType: IdentityDocumentType, identification: string, notes: string, document: File): Observable<OwnerVerificationRequest> {
     const payload = new FormData();
+    payload.set('documentType', documentType);
     payload.set('identification', identification);
     payload.set('notes', notes);
     payload.set('document', document);
